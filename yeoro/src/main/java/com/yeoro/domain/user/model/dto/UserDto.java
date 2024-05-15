@@ -19,10 +19,13 @@ public class UserDto {
     private String nickname;
     //@Schema(description = "유저 사진")
     private String picture_url;
+    //@Schema(description = "oauth 서비스명")
+    private String provider_type;
+    //@Schema(description = "refresh Token")
+    private String refresh_token;
     //@Schema(description = "생성 일시")
     private LocalDateTime created_at = LocalDateTime.now();
     //@Schema(description = "수정 일시")
     private LocalDateTime updated_at = LocalDateTime.now();
-    //@Schema(description = "refreshToken")
-    private String refreshToken;
+
 }

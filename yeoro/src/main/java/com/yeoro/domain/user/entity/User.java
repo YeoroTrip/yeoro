@@ -14,7 +14,8 @@ public class User {
     private String password;
     private String nickname;
     private String picture_url;
+    private String provider_type;
+    private String refresh_token;
     private LocalDateTime created_at = LocalDateTime.now();
     private LocalDateTime updated_at = LocalDateTime.now();;
-    private String refreshToken;
 }
