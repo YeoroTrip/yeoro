@@ -79,6 +79,7 @@
 		    <version>0.11.5</version>
 		    <scope>runtime</scope>
 		</dependency>
+
 		<!-- https://mvnrepository.com/artifact/io.jsonwebtoken/jjwt-jackson -->
 		<dependency>
 		    <groupId>io.jsonwebtoken</groupId>
@@ -86,7 +87,19 @@
 		    <version>0.11.5</version>
 		    <scope>runtime</scope>
 		</dependency>
-		
+
+		<!-- swagger를 위한 의존성 추가. springdoc로 검색 : SpringDoc OpenAPI Starter WebMVC UI -->
+		<!-- https://mvnrepository.com/artifact/org.springdoc/springdoc-openapi-starter-webmvc-ui -->
+		<dependency>
+			<groupId>org.springdoc</groupId>
+			<artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+			<version>2.4.0</version>
+		</dependency>
+		<dependency>
+			<groupId>org.junit.jupiter</groupId>
+			<artifactId>junit-jupiter-api</artifactId>
+		</dependency>
+
 	</dependencies>
 
 	<build>
