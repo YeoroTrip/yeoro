@@ -1,11 +1,15 @@
-<script setup></script>
+<script setup>
+import NavBar from '@/layout/NavBar.vue'
+</script>
 
 <template>
   <header>
     <div class="wrapper">
-      <h1 class="text-3xl font-bold underline">Hello world!</h1>
+      <NavBar/>
     </div>
   </header>
+
+  <RouterView/>
 </template>
 
 <style scoped></style>
