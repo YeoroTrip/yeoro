@@ -17,6 +17,21 @@ class UserServiceImpl implements UserService {
        super();
        this.userMapper = userMapper;
    }
+
+	@Override
+	public boolean addUser(UserDto userDto) throws Exception {
+		return userMapper.insertUser(userDto) > 0;
+	}
+
+	@Override
+	public boolean updateUser(UserDto userDto) throws Exception {
+		return userMapper.updateUser(userDto) > 0;
+	}
+
+	@Override
+	public boolean deleteUser(String id) throws Exception {
+		return userMapper.deleteUser(id) > 0;
+	}
    
 	@Override
 	public UserDto login(UserDto userDTO) throws Exception {
@@ -47,5 +62,6 @@ class UserServiceImpl implements UserService {
 		map.put("token", null);
 		userMapper.deleteRefreshToken(map);	
 	}
+
 
 }
