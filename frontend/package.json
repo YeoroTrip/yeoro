@@ -14,7 +14,8 @@
     "@headlessui/vue": "^1.7.22",
     "pinia": "^2.1.7",
     "vue": "^3.4.21",
-    "vue-router": "^4.3.0"
+    "vue-router": "^4.3.0",
+    "vue3-google-map": "^0.20.0"
   },
   "devDependencies": {
     "@rushstack/eslint-patch": "^1.8.0",
