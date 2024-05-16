@@ -21,7 +21,7 @@ public class NoticeDto {
     private Long hits;
 
     //@Schema(description = "중요 여부")
-    private Boolean isImportant;
+    private boolean isImportant;
 
     //@Schema(description = "생성 일시")
     private LocalDateTime created_at;
