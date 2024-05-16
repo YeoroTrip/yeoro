@@ -34,7 +34,7 @@ public class UserController {
 	public UserController(UserService userService, JWTUtil jwtUtil) {
 		super();
 		this.userService = userService;
-		this.jwtUtil = new JWTUtil();
+		this.jwtUtil = jwtUtil;
 	}
 	
 	@PostMapping("/login")
