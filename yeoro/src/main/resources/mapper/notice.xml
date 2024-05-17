@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yeoro.domain.notice.model.mapper.NoticeMapper">
+
+    <!-- 공지사항 목록 조회 -->
+    <select id="getNotices" resultType="com.yeoro.domain.notice.model.dto.NoticeDto">
+        SELECT
+            id,
+            title,
+            hits,
+            is_important AS isImportant,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM notice
+        ORDER BY is_important DESC, id ASC;
+    </select>
+
+    <!-- 특정 ID의 공지사항 조회 -->
+    <select id="getNotice" parameterType="java.lang.Long" resultType="com.yeoro.domain.notice.model.dto.NoticeDto">
+        SELECT
+            id,
+            title,
+            context,
+            hits,
+            is_important AS isImportant,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM notice
+        WHERE id = #{id};
+    </select>
+
+    <!-- 공지사항 추가 -->
+    <insert id="addNotice" useGeneratedKeys="true" keyProperty="id" parameterType="com.yeoro.domain.notice.model.dto.NoticeDto" >
+        INSERT INTO notice (title, context, is_important)
+        VALUES (#{title}, #{context}, #{isImportant});
+    </insert>
+
+    <!-- 공지사항 수정 -->
+    <update id="setNotice" parameterType="com.yeoro.domain.notice.model.dto.NoticeDto">
+        UPDATE notice
+        SET title = #{title}, context = #{context}, is_important = #{isImportant}
+        WHERE id = #{id};
+    </update>
+
+    <!-- 조회수 증가 -->
+    <update id="increaseHits" parameterType="java.lang.Long">
+        UPDATE notice
+        SET hits = hits + 1
+        WHERE id = #{id};
+    </update>
+
+    <!-- 공지사항 삭제 -->
+    <delete id="deleteNotice" parameterType="java.lang.Long">
+        DELETE FROM notice WHERE id = #{id};
+    </delete>
+
+</mapper>
