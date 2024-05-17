@@ -1,0 +1,61 @@
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoro.domain.user.model.mapper.UserMapper">
+
+	<resultMap id="userResultMap" type="com.yeoro.domain.user.model.dto.UserDto">
+		<result column="user_id" property="userId"/>
+		<result column="password" property="password"/>
+		<result column="nickname" property="nickname"/>
+		<result column="picture_url" property="pictureUrl"/>
+		<result column="is_admin" property="isAdmin"/>
+		<result column="provider_type" property="providerType"/>
+		<result column="refresh_token" property="refreshToken"/>
+		<result column="created_at" property="createdAt"/>
+		<result column="updated_at" property="updatedAt"/>
+	</resultMap>
+
+	<insert id="insertUser" parameterType="com.yeoro.domain.user.model.dto.UserDto">
+		INSERT INTO user (user_id, password, nickname, picture_url, is_admin, provider_type, refresh_token)
+		VALUES (#{userId}, #{password}, #{nickname}, #{pictureUrl,  jdbcType=VARCHAR},  #{isAdmin, jdbcType=BIT}, #{providerType, jdbcType=VARCHAR}, #{refreshToken, jdbcType=VARCHAR})
+	</insert>
+
+	<update id="updateUser" parameterType="com.yeoro.domain.user.model.dto.UserDto">
+		UPDATE user
+		SET password=#{password}, nickname=#{nickname}, picture_url=#{pictureUrl,  jdbcType=VARCHAR}
+		WHERE user_id=#{userId}
+	</update>
+
+	<delete id="deleteUser" parameterType="string">
+		DELETE FROM user
+		WHERE user_id=#{userId}
+	</delete>
+
+	<select id="login" parameterType="com.yeoro.domain.user.model.dto.UserDto" resultMap="userResultMap">
+		SELECT user_id
+		FROM user
+		WHERE user_id=#{userId} and password=#{password}
+	</select>
+
+	<select id="userInfo" parameterType="string" resultMap="userResultMap">
+		SELECT *
+		FROM user
+		WHERE user_id=#{userId}
+	</select>
+
+	<insert id="saveRefreshToken" parameterType="map">
+		UPDATE user
+		SET refresh_token=#{token}
+		WHERE user_id=#{userId}
+	</insert>
+
+	<select id="getRefreshToken" parameterType="string" resultType="string">
+		SELECT refresh_token
+		FROM user
+		WHERE user_id=#{userId}
+	</select>
+
+	<delete id="deleteRefreshToken" parameterType="map">
+		DELETE FROM user
+		WHERE user_id=#{userId} AND refresh_token=#{token}
+	</delete>
+
+</mapper>
