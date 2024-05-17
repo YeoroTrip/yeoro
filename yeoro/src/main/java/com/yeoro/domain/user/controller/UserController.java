@@ -65,24 +65,30 @@ public class UserController {
 	
 	@Operation(summary="회원 탈퇴", description = "회원 아이디를 받아 user테이블에서 회원 정보를 삭제한다.")
 	@DeleteMapping("/unregister")
-	public ResponseEntity<Map<String, Object>> unregister(@RequestBody String userid) {
+	public ResponseEntity<Map<String, Object>> unregister(@RequestBody String userid, HttpServletRequest request) {
 	    Map<String, Object> resultMap = new HashMap<>();
 	    HttpStatus status;
-	    try {
-	        boolean result = userService.deleteUser(userid);
-			if(result) {
-				resultMap.put("message", "회원 탈퇴 성공");
-				status = HttpStatus.NO_CONTENT;
-			} else {
-				resultMap.put("message", "회원 탈퇴에 실패했습니다.");
-				status = HttpStatus.BAD_REQUEST;
+
+		if(jwtUtil.checkToken(request.getHeader("Authorization"))) {
+			try {
+				boolean result = userService.deleteUser(userid);
+				if (result) {
+					resultMap.put("message", "회원 탈퇴 성공");
+					status = HttpStatus.NO_CONTENT;
+				} else {
+					resultMap.put("message", "회원 탈퇴에 실패했습니다.");
+					status = HttpStatus.BAD_REQUEST;
+				}
+			} catch (Exception e) {
+				log.error("회원 탈퇴 에러 발생 : {}", e);
+				resultMap.put("message", e.getMessage());
+				status = HttpStatus.INTERNAL_SERVER_ERROR;
 			}
-	    } catch (Exception e) {
-	        log.error("회원 탈퇴 에러 발생 : {}", e);
-	        resultMap.put("message", e.getMessage());
-	        status = HttpStatus.INTERNAL_SERVER_ERROR;
-	    }
-	    return new ResponseEntity<>(resultMap, status);
+		} else {
+			log.error("사용 불가능 토큰입니다.");
+			status = HttpStatus.UNAUTHORIZED;
+		}
+		return new ResponseEntity<>(resultMap, status);
 	}
 
 	@Operation(summary="내 정보 수정", description = "회원 아이디와 토큰 정보로 인증 후, 입력받은 사용자 정보로 갱신한다.")
