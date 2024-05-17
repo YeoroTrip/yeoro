@@ -29,8 +29,8 @@ class UserServiceImpl implements UserService {
 	}
 
 	@Override
-	public boolean deleteUser(String id) throws Exception {
-		return userMapper.deleteUser(id) > 0;
+	public boolean deleteUser(String userId) throws Exception {
+		return userMapper.deleteUser(userId) > 0;
 	}
    
 	@Override
@@ -38,16 +38,16 @@ class UserServiceImpl implements UserService {
 		return userMapper.login(userDTO);
 	}
 	@Override
-	public UserDto userInfo(String id) throws Exception {
-		return userMapper.userInfo(id);
+	public UserDto userInfo(String userId) throws Exception {
+		return userMapper.userInfo(userId);
 	}
 
 	@Override
-	public void saveRefreshToken(String id, String refreshToken) throws Exception {
+	public void saveRefreshToken(String userId, String refreshToken) throws Exception {
 		Map<String, String> map = new HashMap<String, String>();
-		map.put("userId", id);
+		map.put("userId", userId);
 		map.put("token", refreshToken);
-		userMapper.saveRefreshToken(map);		
+		userMapper.saveRefreshToken(map);
 	}
 
 	@Override

@@ -42,8 +42,9 @@
 	</select>
 
 	<insert id="saveRefreshToken" parameterType="map">
-		INSERT INTO user (user_id, refresh_token)
-		VALUES (#{userId}, #{refreshToken})
+		UPDATE user
+		SET refresh_token=#{token}
+		WHERE user_id=#{userId}
 	</insert>
 
 	<select id="getRefreshToken" parameterType="string" resultType="string">
@@ -54,7 +55,7 @@
 
 	<delete id="deleteRefreshToken" parameterType="map">
 		DELETE FROM user
-		WHERE user_id=#{userId} AND refresh_token=#{refreshToken}
+		WHERE user_id=#{userId} AND refresh_token=#{token}
 	</delete>
 
 </mapper>

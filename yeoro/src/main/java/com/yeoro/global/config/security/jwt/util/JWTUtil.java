@@ -5,6 +5,7 @@ import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Map;
 
+import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
@@ -15,6 +16,8 @@ import io.jsonwebtoken.Jws;
 import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
+
+import javax.crypto.SecretKey;
 
 @Component
 @Slf4j
@@ -54,33 +57,20 @@ public class JWTUtil {
 				.setExpiration(new Date(System.currentTimeMillis() + expireTime));
 
 //		저장할 data의 key, value
-		claims.put("userId", userId);
-
 		String jwt = Jwts.builder()
 //			Header 설정 : 토큰의 타입, 해쉬 알고리즘 정보 세팅.
 			.setHeaderParam("typ", "JWT").setClaims(claims)
 //			Signature 설정 : secret key를 활용한 암호화.
-			.signWith(SignatureAlgorithm.HS256, this.generateKey())
+			.signWith(generateKey())
 			.compact(); // 직렬화 처리.
 
 		return jwt;
 	}
 
-//	Signature 설정에 들어갈 key 생성.
-	private byte[] generateKey() {
-		byte[] key = null;
-		try {
-//			charset 설정 안하면 사용자 플랫폼의 기본 인코딩 설정으로 인코딩 됨.
-			key = salt.getBytes("UTF-8");
-		} catch (UnsupportedEncodingException e) {
-			if (log.isInfoEnabled()) {
-				e.printStackTrace();
-			} else {
-				log.error("Making JWT Key Error ::: {}", e.getMessage());
-			}
-		}
-		return key;
-	}
+private SecretKey generateKey() {
+	// 안전한 키 생성
+	return Keys.secretKeyFor(SignatureAlgorithm.HS256);
+}
 	
 //	전달 받은 토큰이 제대로 생성된 것인지 확인 하고 문제가 있다면 UnauthorizedException 발생.
 	public boolean checkToken(String token) {
