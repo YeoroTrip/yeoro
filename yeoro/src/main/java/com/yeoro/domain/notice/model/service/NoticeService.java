@@ -11,7 +11,7 @@ public interface NoticeService {
 
     List<NoticeDto> findAllNotice();
 
-    NoticeDto modifyNotice(NoticeDto noticeDto);
+    int modifyNotice(NoticeDto noticeDto);
 
-    NoticeDto removeNotice(Long id);
+    int removeNotice(Long id);
 }

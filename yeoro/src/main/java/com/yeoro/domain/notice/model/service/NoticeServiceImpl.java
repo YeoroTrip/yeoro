@@ -38,23 +38,62 @@ public class NoticeServiceImpl implements NoticeService{
     @Override
     public NoticeDto findNotice(Long id) {
         try {
+            int updateResult = noticeMapper.increaseHits(id);
+            if(updateResult == 0)   // 업데이트 실패
+                return null;
 
+            NoticeDto noticeDto = noticeMapper.getNotice(id);
+            if(noticeDto == null)   // 조회 실패
+                return null;
+
+            return noticeDto;
+
+        }catch (Exception e){
+            // 공지사항 조회 중 예외가 발생한 경우
+            e.printStackTrace(); // 예외 내용을 출력
+            return null; // 실패로 처리
         }
-        return null;
     }
 
     @Override
     public List<NoticeDto> findAllNotice() {
-        return null;
+        try{
+            List<NoticeDto> notices = noticeMapper.getNotices();
+            if(notices.isEmpty()) return null;
+
+            return notices;
+        } catch (Exception e){
+            // 공지사항 조회 중 예외가 발생한 경우
+            e.printStackTrace(); // 예외 내용을 출력
+            return null; // 실패로 처리
+        }
     }
 
     @Override
-    public NoticeDto modifyNotice(NoticeDto noticeDto) {
-        return null;
+    public int modifyNotice(NoticeDto noticeDto) {
+        try {
+            int result = noticeMapper.setNotice(noticeDto);
+            if(result == 0) return 0;
+
+            return 1;
+        }catch (Exception e){
+            // 공지사항 수정 중 예외가 발생한 경우
+            e.printStackTrace(); // 예외 내용을 출력
+            return 0; // 실패로 처리
+        }
     }
 
     @Override
-    public NoticeDto removeNotice(Long id) {
-        return null;
+    public int removeNotice(Long id) {
+        try {
+            int result = noticeMapper.deleteNotice(id);
+            if(result == 0) return 0;
+
+            return 1;
+        }catch (Exception e){
+            // 공지사항 삭제 중 예외가 발생한 경우
+            e.printStackTrace(); // 예외 내용을 출력
+            return 0; // 실패로 처리
+        }
     }
 }
