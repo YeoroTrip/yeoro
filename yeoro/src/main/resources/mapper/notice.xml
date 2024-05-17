@@ -33,14 +33,14 @@
 
     <!-- 공지사항 추가 -->
     <insert id="addNotice" useGeneratedKeys="true" keyProperty="id" parameterType="com.yeoro.domain.notice.model.dto.NoticeDto" >
-        INSERT INTO notice (title, context, hits, is_important)
-        VALUES (#{title}, #{context}, #{hits}, #{isImportant});
+        INSERT INTO notice (title, context, is_important)
+        VALUES (#{title}, #{context}, #{isImportant});
     </insert>
 
     <!-- 공지사항 수정 -->
     <update id="setNotice" parameterType="com.yeoro.domain.notice.model.dto.NoticeDto">
         UPDATE notice
-        SET title = #{title}, context = #{context}, hits = #{hits}, is_important = #{isImportant}
+        SET title = #{title}, context = #{context}, is_important = #{isImportant}
         WHERE id = #{id};
     </update>
 
