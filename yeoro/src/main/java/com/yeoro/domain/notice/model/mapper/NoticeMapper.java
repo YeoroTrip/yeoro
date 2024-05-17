@@ -11,5 +11,6 @@ public interface NoticeMapper {
     NoticeDto getNotice(Long id);
     int addNotice(NoticeDto noticeDto);
     int setNotice(NoticeDto noticeDto);
+    int increaseHits(Long id);
     int deleteNotice(Long id);
 }

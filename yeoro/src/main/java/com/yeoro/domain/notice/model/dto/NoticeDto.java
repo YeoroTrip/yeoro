@@ -24,8 +24,8 @@ public class NoticeDto {
     private boolean isImportant;
 
     //@Schema(description = "생성 일시")
-    private LocalDateTime created_at;
+    private LocalDateTime createdAt;
     //@Schema(description = "수정 일시")
-    private LocalDateTime updated_at;
+    private LocalDateTime updatedAt;
 
 }
