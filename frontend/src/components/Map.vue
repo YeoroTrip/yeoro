@@ -29,11 +29,13 @@ const locations = ref([
   { lat: -42.735258, lng: 147.438 },
   { lat: -43.999792, lng: 170.463352 },
 ])
+
+const apiKey = import.meta.env.VITE_GOOGLE_API_KEY
 </script>
 
 <template>
     <GoogleMap
-      api-key="구글 API"
+      :api-key="apiKey"
       style="width: 100%; height: 100vh"
       :center="center"
       :zoom="3"
