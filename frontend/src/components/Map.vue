@@ -2,10 +2,10 @@
 import { ref } from 'vue'
 import { GoogleMap, Marker, MarkerCluster, InfoWindow } from 'vue3-google-map'
 
-const center = ref({ lat: -28.024, lng: 140.887 })
+const center = ref({ lat: 37.500643, lng: 127.0385419 })
 
 const locations = ref([
-  { lat: -31.56391, lng: 147.154312 },
+  { lat: 37.501286, lng: 127.0396029 },// 멀티캠퍼스 역삼
   { lat: -33.718234, lng: 150.363181 },
   { lat: -33.727111, lng: 150.371124 },
   { lat: -33.848588, lng: 151.209834 },
@@ -38,7 +38,7 @@ const apiKey = import.meta.env.VITE_GOOGLE_API_KEY
       :api-key="apiKey"
       style="width: 100%; height: 100vh"
       :center="center"
-      :zoom="3"
+      :zoom="15"
       language="kor"
     >
       <MarkerCluster>
