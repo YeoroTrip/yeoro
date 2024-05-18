@@ -1,3 +1,28 @@
+<script setup>
+import { Disclosure, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
+import { useRouter } from 'vue-router'
+import { useAuthStore } from '@/stores/auth'
+import { storeToRefs } from 'pinia'
+
+const authStore = useAuthStore()
+const isLoggedIn = storeToRefs(authStore)
+
+console.log(isLoggedIn.value)
+// 로그아웃 처리 함수
+function logout() {
+    isLoggedIn.value = false
+    router.push(`/`)
+}
+
+const router = useRouter()
+const profileClick = () => {
+    if(!isLoggedIn.value) {
+        router.push('/login');
+    }
+}
+
+</script>
+
 <template>
     <Disclosure as="nav" class="bg-D5E9B3">
     <div class="mx-auto max-w-8xl px-2 sm:px-6 lg:px-8">
@@ -12,19 +37,20 @@
             <!-- Profile dropdown -->
             <Menu as="div" class="relative ml-3">
             <div>
-                <MenuButton class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
+                <MenuButton @click="profileClick" class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800">
                 <span class="absolute -inset-1.5" ></span>
                 <span class="sr-only">Open user menu</span>
                 <img class="h-8 w-8 rounded-full" src="@/assets/img/logo-yeoro.png" alt="" />
                 </MenuButton>
             </div>
-            <transition enter-active-class="transition ease-out duration-100" enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+            
+            <transition v-if="isLoggedIn" transition ease-out duration-100 enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                 <MenuItems class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <MenuItem v-slot="{ active }">
-                    <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">내 정보</a>
+                    <RouterLink to="MyPage" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">내 정보</RouterLink>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
-                    <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">로그아웃</a>
+                    <a href="#" @click="logout" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">로그아웃</a>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
                     <a href="#" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">고객센터</a>
@@ -39,9 +65,4 @@
   
     </Disclosure>
   </template>
-  
-  <script setup>
-  import { Disclosure, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
-  
-  </script>
   
