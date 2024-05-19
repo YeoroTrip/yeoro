@@ -1,20 +1,18 @@
 package com.yeoro.global.config.security.jwt.util;
 
-
+import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import java.io.UnsupportedEncodingException;
 import java.util.Date;
 import java.util.Map;
+import java.util.Base64;
+import javax.crypto.SecretKey;
 
-import io.jsonwebtoken.security.Keys;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 import com.yeoro.global.config.security.jwt.exception.*;
 
-import io.jsonwebtoken.Claims;
-import io.jsonwebtoken.Jws;
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
 import lombok.extern.slf4j.Slf4j;
 
 import javax.crypto.SecretKey;
@@ -22,6 +20,7 @@ import javax.crypto.SecretKey;
 @Component
 @Slf4j
 public class JWTUtil {
+	private static final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS256); // 안전한 키 생성
 
 	@Value("${jwt.salt}")
 	private String salt;
@@ -57,20 +56,36 @@ public class JWTUtil {
 				.setExpiration(new Date(System.currentTimeMillis() + expireTime));
 
 //		저장할 data의 key, value
+		claims.put("userId", userId);
+
+
 		String jwt = Jwts.builder()
-//			Header 설정 : 토큰의 타입, 해쉬 알고리즘 정보 세팅.
+//			Header 설정 : 토큰의 타입, 해쉬 알고리즘 정보 세팅.z
 			.setHeaderParam("typ", "JWT").setClaims(claims)
 //			Signature 설정 : secret key를 활용한 암호화.
-			.signWith(generateKey())
+			//.signWith(SignatureAlgorithm.HS256, this.generateKey())
+			.signWith(key)
 			.compact(); // 직렬화 처리.
 
 		return jwt;
 	}
 
-private SecretKey generateKey() {
-	// 안전한 키 생성
-	return Keys.secretKeyFor(SignatureAlgorithm.HS256);
-}
+
+	//	Signature 설정에 들어갈 key 생성.
+	private byte[] generateKey() {
+		byte[] key = null;
+		try {
+//			charset 설정 안하면 사용자 플랫폼의 기본 인코딩 설정으로 인코딩 됨.
+			key = salt.getBytes("UTF-8");
+		} catch (UnsupportedEncodingException e) {
+			if (log.isInfoEnabled()) {
+				e.printStackTrace();
+			} else {
+				log.error("Making JWT Key Error ::: {}", e.getMessage());
+			}
+		}
+		return key;
+	}
 	
 //	전달 받은 토큰이 제대로 생성된 것인지 확인 하고 문제가 있다면 UnauthorizedException 발생.
 	public boolean checkToken(String token) {
@@ -78,15 +93,25 @@ private SecretKey generateKey() {
 //			Json Web Signature? 서버에서 인증을 근거로 인증 정보를 서버의 private key 서명 한것을 토큰화 한것
 //			setSigningKey : JWS 서명 검증을 위한  secret key 세팅
 //			parseClaimsJws : 파싱하여 원본 jws 만들기
-			Jws<Claims> claims = Jwts.parser().setSigningKey(this.generateKey()).parseClaimsJws(token);
-//			Claims 는 Map 구현체 형태
+			Jws<Claims> claims = Jwts.parser().setSigningKey(key).parseClaimsJws(token);
 			log.debug("claims: {}", claims);
 			return true;
+		} catch (ExpiredJwtException e) {
+			log.error("토큰이 만료되었습니다.", e);
+		} catch (UnsupportedJwtException e) {
+			log.error("지원되지 않는 토큰 형식입니다.", e);
+		} catch (MalformedJwtException e) {
+			log.error("토큰이 잘못되었습니다.", e);
+		} catch (SignatureException e) {
+			log.error("토큰 서명이 잘못되었습니다.", e);
+		} catch (IllegalArgumentException e) {
+			log.error("토큰이 비어 있습니다.", e);
 		} catch (Exception e) {
 			log.error(e.getMessage());
-			return false;
 		}
+		return false;
 	}
+
 	
 	public String getUserId(String authorization) {
 		Jws<Claims> claims = null;

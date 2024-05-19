@@ -23,4 +23,5 @@
   input[type="search"] {
     background-color: white; /* 배경색을 하얀색으로 설정 */
   }
+  
 </style>
