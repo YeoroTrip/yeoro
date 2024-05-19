@@ -1,26 +1,39 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, reactive } from 'vue'
 import { useRouter } from 'vue-router'
 import PopupComponent from '@/components/PopupComponent.vue'
+import userAPI from "@/api/user"
+
 const router = useRouter()
 const showPopup = ref(false)
 const popupTitle = ref('함께 동행해요!')
 const popupContext = ref('회원가입이 정상적으로 완료되었습니다! 👏 ')
 
+const user = reactive({userId: "", password:"", nickname:""})
 const joinSubmit = () =>{
-    console.log("join")
-    // 통신 완료 후 성공 or 싪패
+    
+    userAPI.register(user, 
+    
+    () => {
+        showPopup.value = true;
+    }, 
 
-    // 성공
-    showPopup.value = true;
-
-    // 실패 
+    () => {
+        console.log("회원 가입에 실패했습니다.")
+    })
+    reset()
+}
+const reset = () => {
+    user.userId = ``
+    user.password =``
+    user.nickname = ``
 }
 
 const pageMove = () => {
     router.push('/');
 }
 
+//TODO - 노션 참고 
 </script>
 
 <template>
@@ -40,15 +53,19 @@ const pageMove = () => {
               <h1 class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white">
                   가입하고 여로와 동행해보세요!
               </h1>
-              <form class="space-y-4 md:space-y-6" action="#">
+              <form method="post" class="space-y-4 md:space-y-6">
                   <div>
                       <label for="text" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">아이디</label>
                       <input type="text" name="userid" id="userid" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
-                      placeholder="아이디" required>
+                      placeholder="아이디" 
+                      
+                      v-model.lazy="user.userId"
+                      required>
                   </div>
                   <div>
                       <label for="password" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">비밀번호</label>
                       <input type="password" name="password" id="password" placeholder="••••••••" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                      v-model.lazy="user.password"
                       required>
                   </div>
                   
@@ -60,6 +77,7 @@ const pageMove = () => {
                   <div>
                       <label for="nickname" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">닉네임</label>
                       <input type="nickname" name="nickname" id="nickname" placeholder="닉네임" class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500" 
+                      v-model.lazy="user.nickname"
                       required>
                   </div>
 

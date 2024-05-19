@@ -1,23 +1,33 @@
 <script setup>
 import { Disclosure, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { useRouter } from 'vue-router'
-import { useAuthStore } from '@/stores/auth'
+import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'
+const userStore = useUserStore()
+const { getUserInfo } = userStore
+const { isLogin, isLoginError } = storeToRefs(userStore)
 
-const authStore = useAuthStore()
-const isLoggedIn = storeToRefs(authStore)
 
-console.log(isLoggedIn.value)
 // 로그아웃 처리 함수
 function logout() {
-    isLoggedIn.value = false
+    isLogin.value = false
     router.push(`/`)
 }
 
 const router = useRouter()
 const profileClick = () => {
-    if(!isLoggedIn.value) {
-        router.push('/login');
+    //console.log(isLogin.value)
+    if(!isLogin.value) {
+        router.push({ name: 'Login' })
+    }
+}
+
+const myPageClick = () => {
+    if(isLogin.value) {
+        let token = sessionStorage.getItem("accessToken")
+        //console.log("token : ", token)
+        getUserInfo(token) // 페이지 넘어가기 전에 정보 미리 받아 
+        router.push({name: 'MyPage'})
     }
 }
 
@@ -44,10 +54,10 @@ const profileClick = () => {
                 </MenuButton>
             </div>
             
-            <transition v-if="isLoggedIn" transition ease-out duration-100 enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
+            <transition v-if="isLogin" transition ease-out duration-100 enter-from-class="transform opacity-0 scale-95" enter-to-class="transform opacity-100 scale-100" leave-active-class="transition ease-in duration-75" leave-from-class="transform opacity-100 scale-100" leave-to-class="transform opacity-0 scale-95">
                 <MenuItems class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none">
                 <MenuItem v-slot="{ active }">
-                    <RouterLink to="MyPage" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">내 정보</RouterLink>
+                    <a herf="#" @click="myPageClick" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">내 정보</a>
                 </MenuItem>
                 <MenuItem v-slot="{ active }">
                     <a href="#" @click="logout" :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']">로그아웃</a>

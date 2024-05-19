@@ -58,4 +58,10 @@
 		WHERE user_id=#{userId} AND refresh_token=#{token}
 	</delete>
 
+
+	<delete id="deletePicture" parameterType="string">
+		DELETE FROM picture_url
+		WHERE user_id = #{user_id}
+	</delete>
+
 </mapper>

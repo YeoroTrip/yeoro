@@ -3,6 +3,7 @@ package com.yeoro.domain.user.controller;
 import java.util.HashMap;
 import java.util.Map;
 
+import io.swagger.v3.oas.annotations.Parameter;
 import lombok.extern.slf4j.Slf4j;
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
@@ -11,21 +12,14 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.context.annotation.Description;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PatchMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import com.yeoro.domain.user.model.dto.UserDto;
 import com.yeoro.domain.user.model.service.UserService;
 import com.yeoro.global.config.security.jwt.util.JWTUtil;
 
 import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.web.multipart.MultipartFile;
 
 @RestController
 @RequestMapping("/user")
@@ -64,14 +58,19 @@ public class UserController {
 	}
 	
 	@Operation(summary="회원 탈퇴", description = "회원 아이디를 받아 user테이블에서 회원 정보를 삭제한다.")
-	@DeleteMapping("/unregister")
-	public ResponseEntity<Map<String, Object>> unregister(@RequestBody String userid, HttpServletRequest request) {
-	    Map<String, Object> resultMap = new HashMap<>();
+	@DeleteMapping("/unregister/{userId}")
+	public ResponseEntity<Map<String, Object>> unregister(@PathVariable String userId, HttpServletRequest request) {
+
+		Map<String, Object> resultMap = new HashMap<>();
 	    HttpStatus status;
 
-		if(jwtUtil.checkToken(request.getHeader("Authorization"))) {
+		String token = request.getHeader("Authorization");
+		log.debug("[회원탈퇴 ]Token : {}", token);
+		log.debug("[회원탈퇴 ]userId : {}", userId);
+
+		if(jwtUtil.checkToken(token)) {
 			try {
-				boolean result = userService.deleteUser(userid);
+				boolean result = userService.deleteUser(userId);
 				if (result) {
 					resultMap.put("message", "회원 탈퇴 성공");
 					status = HttpStatus.NO_CONTENT;
@@ -92,15 +91,15 @@ public class UserController {
 	}
 
 	@Operation(summary="내 정보 수정", description = "회원 아이디와 토큰 정보로 인증 후, 입력받은 사용자 정보로 갱신한다.")
-	@PatchMapping("/my")
-	public ResponseEntity<Map<String, Object>> modifyUser(@RequestBody UserDto userDto,
+	@PatchMapping(value = "/my", consumes = "multipart/form-data")
+	public ResponseEntity<Map<String, Object>> modifyUser(@RequestPart("userDto") UserDto userDto,
+														  @RequestPart("file") MultipartFile file,
 														  HttpServletRequest request) {
 	    Map<String, Object> resultMap = new HashMap<>();
 	    HttpStatus status;
 	    try {
-
 			if(jwtUtil.checkToken(request.getHeader("Authorization"))) {}
-	    	boolean result = userService.updateUser(userDto);
+	    	boolean result = userService.updateUser(userDto, file);
 	        if(result) {
 	            resultMap.put("message", "사용자 정보가 성공적으로 수정되었습니다.");
 	            status = HttpStatus.OK;
@@ -113,34 +112,6 @@ public class UserController {
 	        resultMap.put("message", "회원 정보 수정 중 서버 에러가 발생했습니다.");
 	        status = HttpStatus.INTERNAL_SERVER_ERROR;
 	    }
-	    return new ResponseEntity<>(resultMap, status);
-	}
-
-	@Operation(summary="내 정보 조회", description = "회원 아이디와 토큰 정보로 인증 후, 사용자 정보를 DTO로 반환한다. ")
-	@GetMapping("/my")
-	public ResponseEntity<Map<String, Object>> getUser(@RequestParam String userid, HttpServletRequest request) {
-	    Map<String, Object> resultMap = new HashMap<>();
-	    HttpStatus status;
-
-		if (jwtUtil.checkToken(request.getHeader("Authorization"))) {
-			try {
-				UserDto userDto = userService.userInfo(userid);
-				if(userDto != null) {
-					resultMap.put("user", userDto);
-					status = HttpStatus.OK;
-				} else {
-					resultMap.put("message", "사용자를 찾을 수 없습니다.");
-					status = HttpStatus.NOT_FOUND;
-				}
-			} catch (Exception e) {
-				log.error("회원 조회 에러 발생 : {}", e);
-				resultMap.put("message", e.getMessage());
-				status = HttpStatus.INTERNAL_SERVER_ERROR;
-			}
-		} else {
-			log.error("사용 불가능 토큰입니다.");
-			status = HttpStatus.UNAUTHORIZED;
-		}
 	    return new ResponseEntity<>(resultMap, status);
 	}
 
@@ -164,6 +135,7 @@ public class UserController {
 				userService.saveRefreshToken(loginUser.getUserId(), refreshToken);
 				resultMap.put("access-token", accessToken);
 				resultMap.put("refresh-token", refreshToken);
+
 				status = HttpStatus.CREATED;
 			} else {
 				status = HttpStatus.UNAUTHORIZED;
@@ -184,7 +156,9 @@ public class UserController {
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status = HttpStatus.ACCEPTED;
 
-		if (jwtUtil.checkToken(request.getHeader("Authorization"))) {
+		String token = request.getHeader("Authorization");
+		log.debug("Token : " + token);
+		if (jwtUtil.checkToken(token)) {
 			try {
 				userService.deleteRefreshToken(userId);
 				status = HttpStatus.OK;
@@ -199,16 +173,19 @@ public class UserController {
 		}
 		return new ResponseEntity<Map<String, Object>>(resultMap, status);
 	}
-	
-	@Operation(summary = "회원인증", description = "회원 정보를 담은 Token을 반환한다.")
-	@GetMapping("/info/{userId}")
+
+	@Operation(summary="내 정보 조회", description = "회원 아이디와 토큰 정보로 인증 후, 사용자 정보를 DTO로 반환한다. ")
+	@GetMapping("/my/{userId}")
 	public ResponseEntity<Map<String, Object>> getInfo(
-			@PathVariable("userId") String userId,
+			@PathVariable("userId") @Parameter(description = "인증할 회원의 아이디.", required = true) String userId,
 			HttpServletRequest request) {
 
 		Map<String, Object> resultMap = new HashMap<>();
 		HttpStatus status = HttpStatus.ACCEPTED;
-		if (jwtUtil.checkToken(request.getHeader("Authorization"))) {
+
+		String token = request.getHeader("Authorization");
+		log.debug("token : {}", token);
+		if (jwtUtil.checkToken(token)) {
 			try {
 				UserDto userDTO = userService.userInfo(userId);
 				resultMap.put("userInfo", userDTO);
@@ -232,7 +209,7 @@ public class UserController {
 		HttpStatus status = HttpStatus.ACCEPTED;
 
 		String token = request.getHeader("refreshToken");
-		log.debug("token : {}, memberDto : {}", token, userDTO);
+		log.debug("[refreshToken] token : {}", token);
 
 		if (jwtUtil.checkToken(token)) {
 			if (token.equals(userService.getRefreshToken(userDTO.getUserId()))) {
@@ -248,5 +225,4 @@ public class UserController {
 
 		return new ResponseEntity<Map<String, Object>>(resultMap, status);
 	}
-	
 }
