@@ -1,8 +1,10 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import MainView from '@/views/MainView.vue'
+import NoticeView from '@/views/MainView.vue'
 
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
+import NoticeList from '@/components/notice/NoticeList.vue';
 
 const onlyAuthUser = async (to, from, next) => {
     const userStore = useUserStore();
@@ -50,7 +52,19 @@ const router = createRouter({
           component: () => import("@/components/user/UserMyPage.vue")
         },
       ]
-    }
+    },
+    {
+      path: '/notice',
+      name: 'notice',
+      component : NoticeList
+      // component: [
+      //   {
+      //     path: 'list',
+      //     name: 'list',
+      //     component: () => import("@/components/notice/NoticeList.vue"),
+      //   },
+      // ]
+    },
     
   ]
 })

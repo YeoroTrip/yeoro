@@ -42,7 +42,7 @@ class UserServiceImpl implements UserService {
 	@Override
 	public boolean updateUser(UserDto userDto, MultipartFile file) throws Exception {
 	   try {
-		   if (file.isEmpty()) {
+		   if (!file.isEmpty()) {
 			   String realPath = servletContext.getRealPath(UPLOAD_PATH);
 			   String today = new SimpleDateFormat("yyMMdd").format(new Date());
 			   String saveFolder = realPath + File.separator + today;
