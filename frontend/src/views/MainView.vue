@@ -1,6 +1,7 @@
 <script setup>
 import NavBar from '@/layout/NavBar.vue'
 import SearchBar from "@/components/SearchBar.vue"
+import TestView from "@/views/TestView.vue"
 </script>
 
 <template>
@@ -13,7 +14,7 @@ import SearchBar from "@/components/SearchBar.vue"
     <SearchBar/>
   </div>
   <main>
-    
+    <TestView></TestView>
   </main>
 </template>
 

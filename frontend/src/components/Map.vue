@@ -30,7 +30,7 @@ const locations = ref([
   { lat: -43.999792, lng: 170.463352 },
 ])
 
-const apiKey = import.meta.env.VITE_GOOGLE_API_KEY
+// const apiKey = import.meta.env.VITE_GOOGLE_API_KEY
 </script>
 
 <template>
