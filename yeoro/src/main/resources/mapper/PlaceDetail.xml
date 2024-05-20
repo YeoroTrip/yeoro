@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoro.domain.placeDetail.model.mapper.PlaceDetailMapper">
+
+    <!--useGeneratedKeys="true" keyProperty="id" : 기본키 자동 바인딩-->
+    <!-- PlaceDetail 객체를 DB에 삽입하는 쿼리 -->
+    <insert id="insertPlaceDetail" useGeneratedKeys="true" keyProperty="id" parameterType="PlaceDetail">
+        INSERT INTO Place_Detail (opening_hours_id, name, full_address, latitude, longitude, category, phone_number, rating, photo, created_at, updated_at)
+        VALUES (${placeOpeningHours.id}, #{name}, #{fullAddress}, #{latitude}, #{longitude}, #{category}, #{phoneNumber}, #{rating}, #{photo}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    </insert>
+
+    <!--   	<insert id="insertDept" parameterType="Dept">
+              insert into dept(deptno,dname,loc) values(#{deptno},#{dname},#{loc})
+          </insert>
+
+          <update id="updateDept" parameterType="Dept">
+              update dept set dname = #{dname}, loc = #{loc} where deptno = #{deptno}
+          </update>
+
+          <delete id="deleteDept" parameterType="map">
+              delete from dept
+              <where>
+                  deptno = 0
+                  <if test="array != null">
+                       or
+                      <foreach collection="array" item="item" open="deptno in (" close=")" separator=",">
+                          #{item}
+                      </foreach>
+                  </if>
+              </where>
+          </delete>
+
+          <sql id="basicSelectDeptSQL">
+              select deptno,dname,loc from dept
+          </sql>
+
+          <resultMap type="Dept" id="DeptResultMap">
+              <id column="deptno" property="deptno"/>
+              <result column="dname" property="dname"/>
+              <result column="loc" property="loc"/>
+          </resultMap>
+
+          <select id="selectDepts" resultMap="DeptResultMap">
+              <include refid="basicSelectDeptSQL"></include>
+          </select>
+
+          <select id="selectDeptsByDname" parameterType="string">
+              <include refid="basicSelectDeptSQL"></include>
+              where dname like concat('%',#{dname},'%')
+          </select>
+
+          <select id="selectDept" parameterType="int" resultType="Dept">
+              <include refid="basicSelectDeptSQL"></include>
+              where deptno = #{value}
+          </select>
+
+          <resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">
+            <collection property="emps" ofType="Emp">
+                <id column="empno" property="empno"/>
+                <result column="ename" property="ename"/>
+                <result column="job" property="job"/>
+            </collection>
+          </resultMap>
+
+          <resultMap type="Emp" id="EmpResultMap">
+            <id column="empno" property="empno"/>
+            <result column="ename" property="ename"/>
+            <result column="job" property="job"/>
+          </resultMap>
+
+        <resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">
+            <collection property="emps" ofType="Emp" resultMap="EmpResultMap"/>
+          </resultMap>
+
+          <select id="selectDept"  resultMap="DeptEmpResultMap">
+            select 		deptno,dname,loc,empno,ename,job
+            from 		dept
+            left outer join emp using (deptno)
+            where deptno = #{deptno}
+          </select>
+
+        <select id="selectDeptsByMultiCondition" resultType="Dept">
+            <include refid="basicSelectDeptSQL"></include>
+            <where>
+                <if test="dname != null and dname != ''">
+                    dname like concat('%',#{dname},'%')
+                </if>
+                <if test="loc != null and loc != ''">
+                    and loc = #{loc}
+                </if>
+            </where>
+        </select> -->
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
