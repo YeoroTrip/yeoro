@@ -1,6 +1,7 @@
 import { createRouter, createWebHistory } from 'vue-router'
 import MainView from '@/views/MainView.vue'
 import NoticeView from '@/views/MainView.vue'
+import MapView from '@/views/MapView.vue'
 
 import { storeToRefs } from "pinia";
 import { useUserStore } from "@/stores/user";
@@ -29,6 +30,11 @@ const router = createRouter({
       path: '/',
       name: 'main',
       component: MainView
+    },
+    {
+      path: '/maps',
+      name: 'maps',
+      component: MapView
     },
     {
       path: "/user",
