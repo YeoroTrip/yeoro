@@ -1,6 +1,6 @@
 <script setup>
 import { ref } from 'vue'
-import { GoogleMap, Marker, MarkerCluster, InfoWindow } from 'vue3-google-map'
+import { GoogleMap, Marker, MarkerCluster, InfoWindow, Circle } from 'vue3-google-map'
 
 const center = ref({ lat: 37.500643, lng: 127.0385419 })
 
@@ -30,7 +30,26 @@ const locations = ref([
   { lat: -43.999792, lng: 170.463352 },
 ])
 
-// const apiKey = import.meta.env.VITE_GOOGLE_API_KEY
+const handleMarkerClick = (location) => {
+  center.value = location
+}
+const circles = {}
+
+for (const key in locations.value) {
+  //console.log(locations.value[key].value)
+  circles[key] = {
+    center: locations.value[key].value,
+    //radius: Math.sqrt(cities[key].population) * 100,
+    radius:0.8,
+    strokeColor: '#FF0000',
+    strokeOpacity: 0.8,
+    strokeWeight: 2,
+    fillColor: '#FF0000',
+    fillOpacity: 0.35,
+  }
+}
+
+const apiKey = import.meta.env.VITE_GOOGLE_API_KEY
 </script>
 
 <template>
@@ -41,8 +60,9 @@ const locations = ref([
       :zoom="15"
       language="kor"
     >
-      <MarkerCluster>
-        <Marker v-for="(location, i) in locations" :options="{ position: location }" :key="i">
+    <!-- <Circle v-for="circle in circles" :options="circle" /> -->
+     <MarkerCluster>
+        <Marker v-for="(location, index) in locations" :options="{ position: location }" :key="index" @click="handleMarkerClick(location)">
           <InfoWindow>
             <div id="content">
               <div id="siteNotice"></div>
@@ -65,7 +85,7 @@ const locations = ref([
                 </p>
               </div>
             </div>
-          </InfoWindow>
+          </InfoWindow> 
         </Marker>
       </MarkerCluster>
     </GoogleMap>
