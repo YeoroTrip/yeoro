@@ -41,7 +41,7 @@ public class DataBaseConfiguration {
         SqlSessionFactoryBean session = new SqlSessionFactoryBean();
         session.setDataSource(dataSource);
         session.setMapperLocations(applicationContext.getResources("classpath:mapper/**/*.xml"));
-        session.setTypeAliasesPackage("com.yeoro.domain.*.model.mapper");
+        session.setTypeAliasesPackage("com.yeoro.domain.**.entity, com.yeoro.domain.**.dto");
         return session.getObject();
     }
 

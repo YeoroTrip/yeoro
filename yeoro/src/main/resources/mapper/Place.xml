@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.yeoro.domain.place.model.mapper.PlaceMapper">
+
+    <!-- Insert -->
+    <insert id="insertPlace"  useGeneratedKeys="true" keyProperty="id" parameterType="Place">
+        INSERT INTO Place (google_id, place_detail_id, created_at, updated_at)
+        VALUES (#{googleId}, #{placeDetail.id}, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+    </insert>
+
+    <resultMap type="PlaceDto" id="PlaceDtoResultMap">
+        <result column="google_id" property="googleId"/>
+        <result column="name" property="placeDetailDto.name"/>
+        <result column="full_address" property="placeDetailDto.fullAddress"/>
+        <result column="latitude" property="placeDetailDto.latitude"/>
+        <result column="longitude" property="placeDetailDto.longitude"/>
+        <result column="category" property="placeDetailDto.category"/>
+        <result column="phone_number" property="placeDetailDto.phoneNumber"/>
+        <result column="rating" property="placeDetailDto.rating"/>
+        <result column="photo" property="placeDetailDto.photo"/>
+        <result column="sunday" property="placeDetailDto.placeOpeningHoursDto.sunday"/>
+        <result column="monday" property="placeDetailDto.placeOpeningHoursDto.monday"/>
+        <result column="tuesday" property="placeDetailDto.placeOpeningHoursDto.tuesday"/>
+        <result column="wednesday" property="placeDetailDto.placeOpeningHoursDto.wednesday"/>
+        <result column="thursday" property="placeDetailDto.placeOpeningHoursDto.thursday"/>
+        <result column="friday" property="placeDetailDto.placeOpeningHoursDto.friday"/>
+        <result column="saturday" property="placeDetailDto.placeOpeningHoursDto.saturday"/>
+    </resultMap>
+
+    <sql id="baseSelectPlaceDtoSQL">
+        SELECT  google_id,
+                name, full_address, latitude, longitude, category, phone_number, rating, photo,
+                sunday, monday, tuesday, wednesday, wednesday, thursday, friday, saturday
+        FROM 	place
+        JOIN place_detail ON place.place_detail_id = place_detail.id
+        JOIN place_opening_hours ON place_detail.opening_hours_id = place_opening_hours.id
+    </sql>
+
+    <!-- Select: Google ID-->
+    <select id="selectPlaceByGoogleId" parameterType="string" resultMap="PlaceDtoResultMap">
+        <include refid="baseSelectPlaceDtoSQL"></include>
+        WHERE google_id = #{value}
+    </select>
+
+    <!-- Select: Google IDs-->
+    <select id="selectAllPlaceByGoogleIds" parameterType="java.util.List" resultMap="PlaceDtoResultMap">
+        <include refid="baseSelectPlaceDtoSQL"></include>
+        WHERE google_id IN
+        <foreach item="id" collection="list" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+    <!--
+          <update id="updateDept" parameterType="Dept">
+              update dept set dname = #{dname}, loc = #{loc} where deptno = #{deptno}
+          </update>
+
+          <delete id="deleteDept" parameterType="map">
+              delete from dept
+              <where>
+                  deptno = 0
+                  <if test="array != null">
+                       or
+                      <foreach collection="array" item="item" open="deptno in (" close=")" separator=",">
+                          #{item}
+                      </foreach>
+                  </if>
+              </where>
+          </delete>
+
+
+
+
+          <select id="selectDeptsByDname" parameterType="string">
+              <include refid="basicSelectDeptSQL"></include>
+              where dname like concat('%',#{dname},'%')
+          </select>
+
+          <select id="selectDept" parameterType="int" resultType="Dept">
+              <include refid="basicSelectDeptSQL"></include>
+              where deptno = #{value}
+          </select>
+
+          <resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">
+            <collection property="emps" ofType="Emp">
+                <id column="empno" property="empno"/>
+                <result column="ename" property="ename"/>
+                <result column="job" property="job"/>
+            </collection>
+          </resultMap>
+
+          <resultMap type="Emp" id="EmpResultMap">
+            <id column="empno" property="empno"/>
+            <result column="ename" property="ename"/>
+            <result column="job" property="job"/>
+          </resultMap>
+
+        <resultMap type="Dept" id="DeptEmpResultMap" extends="DeptResultMap">
+            <collection property="emps" ofType="Emp" resultMap="EmpResultMap"/>
+          </resultMap>
+
+          <select id="selectDept"  resultMap="DeptEmpResultMap">
+            select 		deptno,dname,loc,empno,ename,job
+            from 		dept
+            left outer join emp using (deptno)
+            where deptno = #{deptno}
+          </select>
+
+        <select id="selectDeptsByMultiCondition" resultType="Dept">
+            <include refid="basicSelectDeptSQL"></include>
+            <where>
+                <if test="dname != null and dname != ''">
+                    dname like concat('%',#{dname},'%')
+                </if>
+                <if test="loc != null and loc != ''">
+                    and loc = #{loc}
+                </if>
+            </where>
+        </select> -->
+</mapper>
+
+
+
+
+
+
+
+
+
+
+
