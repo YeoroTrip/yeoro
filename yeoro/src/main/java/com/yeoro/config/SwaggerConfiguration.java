@@ -26,10 +26,9 @@ public class SwaggerConfiguration {
         return GroupedOpenApi.builder().group("user").pathsToMatch("/user/**").build();
     }
     @Bean
-    public GroupedOpenApi noticeApi() {
-        return GroupedOpenApi.builder().group("notice").pathsToMatch("/notice/**").build();
-    }
-
+    public GroupedOpenApi noticeApi() { return GroupedOpenApi.builder().group("notice").pathsToMatch("/notice/**").build(); }
+    @Bean
+    public GroupedOpenApi placeApi() { return GroupedOpenApi.builder().group("place").pathsToMatch("/places/**").build(); }
 }
 
 
