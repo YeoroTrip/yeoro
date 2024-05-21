@@ -59,7 +59,9 @@ public class PlaceSearchService {
                 String fullAddress = placeNode.has("formattedAddress") ? placeNode.get("formattedAddress").asText() : "";
                 Double latitude = placeNode.has("location") && placeNode.get("location").has("latitude") ? placeNode.get("location").get("latitude").asDouble() : 0.0;
                 Double longitude = placeNode.has("location") && placeNode.get("location").has("longitude") ? placeNode.get("location").get("longitude").asDouble() : 0.0;
-                String category = placeNode.has("primaryTypeDisplayName") ? placeNode.get("primaryTypeDisplayName").asText() : "";
+                String category = placeNode.has("primaryTypeDisplayName")
+                        && placeNode.get("primaryTypeDisplayName").has("text")
+                        ? placeNode.get("primaryTypeDisplayName").get("text").asText() : "";
                 String phoneNumber = placeNode.has("nationalPhoneNumber") ? placeNode.get("nationalPhoneNumber").asText() : "";
                 Double rating = placeNode.has("rating") ? placeNode.get("rating").asDouble() : 0.0;
                 String photo = placeNode.has("photos") && placeNode.get("photos").isArray() && placeNode.get("photos").size() > 0
