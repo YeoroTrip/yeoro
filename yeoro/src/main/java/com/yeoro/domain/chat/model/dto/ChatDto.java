@@ -1,18 +1,21 @@
 package com.yeoro.domain.chat.model.dto;
 
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
-public class ChatMessage {
+@Builder
+@AllArgsConstructor
+@NoArgsConstructor
+public class ChatDto {
     public enum MessageType{
-        ENTER, TALK
+        ENTER, TALK, LEAVE;
     }
     private MessageType type;
     private String roomId;
     private String sender;
     private String message;
+    private String time;
 }
 
 
