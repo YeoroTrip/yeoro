@@ -1,38 +1,26 @@
 <script setup>
-import { ref, provide, readonly, onMounted } from 'vue'
+import { ref, inject, readonly, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
-import { usePlaceStore } from '@/stores/place'
 import PlaceList from '@/components/map/PlaceList.vue'
 const route = useRoute()
 const userInput = ref()
 userInput.value = route.query.keyword
-//dumpy
+
+const { fetchPlaces } = inject(`service`)
+
+//init value
 const latitude = ref(37.5665)
 const longitude = ref(126.978)
-const placeList = ref([])
 
-//resource
-provide('res', {
-  placeList: placeList
-})
-
-import mapAPI from '@/api/map'
-const tmpFunc = async () => {
-  await mapAPI.getPlaces(
-    userInput.value,
-    latitude.value,
-    longitude.value,
-    (response) => {
-      placeList.value = response.data
-    },
-    (error) => {
-      console.log('에러발생 ', error)
-    }
-  )
+const getPlaces = () => {
+  fetchPlaces(userInput.value, latitude.value, longitude.value);
 }
+
 onMounted(() => {
-  tmpFunc()
+  getPlaces()
 })
+  
+
 </script>
 
 <template>
@@ -68,7 +56,7 @@ onMounted(() => {
           :placeholder="검색어"
           :value="userInput"
           v-model="userInput"
-          @keydown.enter="tmpFunc"
+          @keydown.enter="fetchPlaces"
         />
       </div>
     </div>

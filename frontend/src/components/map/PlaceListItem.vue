@@ -1,12 +1,8 @@
 <script setup>
-import { ref, onBeforeMount, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { initDrawers } from 'flowbite'
 
-onBeforeMount(() => {
-  initDrawers()
-  const today = new Date()
-  currentDay.value = today.getDay()
-})
+
 
 const defaultImg =
   'https://3dicons.sgp1.cdn.digitaloceanspaces.com/v1/dynamic/premium/picture-dynamic-premium.png'
@@ -22,7 +18,6 @@ const handleDrawer = (place) => {
   isDrawerOpen.value = true
 }
 
-const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 
 const closeDrawer = () => {
   isDrawerOpen.value = false
@@ -32,6 +27,7 @@ const closeDrawer = () => {
 const activeTab = ref('info')
 
 // TODO 요일 정보 없으면 그냥 그쪽에서 제공 안 했다고 하면 되잖아
+const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
 const bPlaceOpeningHour = computed(
   () =>
     selectedPlace.value.placeDetailDto.placeOpeningHoursDto['sunday'] !=
@@ -41,7 +37,13 @@ const bPlaceOpeningHour = computed(
 // 평점
 const fullStars = computed(() => Math.floor(selectedPlace.value.placeDetailDto.rating))
 const emptyStars = computed(() => Math.floor(5 - fullStars.value))
-</script>
+
+onMounted(() => {
+  initDrawers()
+  const today = new Date()
+  currentDay.value = today.getDay()
+})</script>
+
 <template>
   <div
     @click="handleDrawer(item)"
@@ -115,7 +117,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
 
         <!-- 평점 -->
         <div name="ratingByStars" class="flex items-center mb-3">
-          <span v-for="n in fullStars">
+          <span v-for="n in fullStars" >
             <svg
               class="w-4 h-4 text-yellow-300 me-1"
               aria-hidden="true"

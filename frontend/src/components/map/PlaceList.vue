@@ -1,7 +1,8 @@
 <script setup>
-import { ref, inject } from 'vue'
+import { inject } from 'vue'
 import PlaceListItem from '@/components/map/PlaceListItem.vue'
 const { placeList } = inject('res')
+
 </script>
 
 <template>
