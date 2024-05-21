@@ -4,34 +4,42 @@ import com.yeoro.domain.chat.model.dto.ChatDto;
 import com.yeoro.domain.chat.model.repository.ChatRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.amqp.rabbit.annotation.RabbitListener;
+import org.springframework.amqp.rabbit.core.RabbitTemplate;
+import org.springframework.messaging.handler.annotation.DestinationVariable;
 import org.springframework.messaging.handler.annotation.MessageMapping;
 import org.springframework.messaging.handler.annotation.Payload;
-import org.springframework.messaging.simp.SimpMessageHeaderAccessor;
-import org.springframework.messaging.simp.SimpMessageSendingOperations;
 import org.springframework.web.bind.annotation.*;
+
+import java.time.LocalDateTime;
 
 @Slf4j
 @RequiredArgsConstructor
 @RestController
 public class ChatController {
+
+    private final static String CHAT_EXCHANGE_NAME = "chat.exchange";
+    private final static String CHAT_QUEUE_NAME = "chat.queue";
+
+    private final RabbitTemplate rabbitTemplate;
     private final ChatRepository chatRepository;
-    private final SimpMessageSendingOperations template;
 
-    @MessageMapping("enterUser")
-    public void enterUser(@Payload ChatDto chatDto, SimpMessageHeaderAccessor headerAccessor){
-        chatRepository.plusUserCount(chatDto.getRoomId());
-        String userUUID = chatRepository.addUser(chatDto.getRoomId(), chatDto.getSender());
-
-        headerAccessor.getSessionAttributes().put("userUUID", userUUID);
-        headerAccessor.getSessionAttributes().put("roomID", chatDto.getRoomId());
-
-        chatDto.setMessage((chatDto.getSender() + "님 입장!!"));
-        template.convertAndSend("/sub/chat/room/" + chatDto.getRoomId(), chatDto);
+    @MessageMapping("chat.enter.{chatRoomId}")
+    public void enterUser(@Payload ChatDto chatDto, @DestinationVariable String chatRoomId){
+        chatDto.setTime(LocalDateTime.now());
+        chatDto.setMessage(chatDto.getSender() + "님 입장!!");
+        rabbitTemplate.convertAndSend(CHAT_EXCHANGE_NAME, "room."+chatRoomId, chatDto);
     }
 
-    @MessageMapping("sendMessage")
-    public void sendMessage(@Payload ChatDto chatDto){
+    @MessageMapping("chat.message.{chatRoomId}")
+    public void sendMessage(@Payload ChatDto chatDto, @DestinationVariable String chatRoomId){
+        chatDto.setTime(LocalDateTime.now());
         chatDto.setMessage(chatDto.getMessage());
-        template.convertAndSend("/sub/chat/room/" + chatDto.getRoomId(), chatDto);
+        rabbitTemplate.convertAndSend(CHAT_EXCHANGE_NAME, "room."+chatRoomId, chatDto);
+    }
+
+    @RabbitListener(queues=CHAT_QUEUE_NAME)
+    public void receive(ChatDto chatDto){
+        System.out.println("received: " + chatDto.getMessage());
     }
 }

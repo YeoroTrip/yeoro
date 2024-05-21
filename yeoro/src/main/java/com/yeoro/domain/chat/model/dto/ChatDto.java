@@ -2,6 +2,8 @@ package com.yeoro.domain.chat.model.dto;
 
 import lombok.*;
 
+import java.time.LocalDateTime;
+
 @Getter
 @Setter
 @Builder
@@ -15,7 +17,7 @@ public class ChatDto {
     private String roomId;
     private String sender;
     private String message;
-    private String time;
+    private LocalDateTime time;
 }
 
 
