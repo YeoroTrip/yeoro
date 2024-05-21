@@ -1,185 +1,23 @@
 <script setup>
-import { ref, reactive, onMounted, computed } from 'vue'
+import { ref, onMounted, computed } from 'vue'
 import { initDrawers } from 'flowbite'
-import { usePlaceStore } from '@/stores/place'
-
-const mapStores = usePlaceStore()
-const { fetchPlaces } = mapStores
 
 const currentDay = ref('')
 const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-
-//main dummy
-const keyword = ref('카페')
-const latitude = ref(37.5665)
-const longitude = ref(126.978)
-
-//const placeList = ref(); // 빈 배열로 초기화
-//const selectedPlace = ref(null); // 초기값은 null 또는 적절한 기본값으로
 const isDrawerOpen = ref(false)
-const isLoading = ref(true)
-const openDrawer = () => {
-  isDrawerOpen.value = true
-}
+const selectedPlace = ref(null)
 
 const closeDrawer = () => {
   isDrawerOpen.value = false
 }
 
-// 유효한 데이터만 필터링하는 함수
-const isValidPlace = (place) => {
-  if (!place.placeDetailDto) return false
-  const {
-    name,
-    fullAddress,
-    latitude,
-    longitude,
-    category,
-    phoneNumber,
-    rating,
-    photo,
-    placeOpeningHoursDto
-  } = place.placeDetailDto
-  return (
-    name &&
-    fullAddress &&
-    latitude &&
-    longitude &&
-    category &&
-    phoneNumber &&
-    rating &&
-    photo &&
-    placeOpeningHoursDto
-  )
-}
-
-// const fetchPlaces = async () => {
-//     try {
-//     const response = await mapAPI.getPlaces(keyword.value, latitude.value, longitude.value);
-//     console.log(response);
-
-//     // response가 배열인지 확인하고 필터링
-//     const validData = Array.isArray(response) ? response.filter(isValidPlace) : [];
-//     placeList.value = validData;
-
-//     console.log("validate : ", validData);
-//     if (placeList.value.length > 0) {
-//         console.log(placeList.value);
-//          selectedPlace.value = placeList.value[0];
-//           isLoading.value = true
-//     }
-//   } catch (error) {
-//     console.error('장소를 가져오는데 실패했습니다:', error);
-//   } finally {
-//     isLoading.value = false;
-//   }
-// }
-
-// const fetchPlaces = async () => {
-//     await mapAPI.getPlaces(keyword.value, latitude.value, longitude.value,
-//     (data) => {
-//         console.log('성공적으로 장소를 가져왔습니다:', data);
-//         placeList.value = data; // 받아온 데이터를 placeList에 할당
-//         if (placeList.value.length > 0) {
-//             selectedPlace.value = placeList.value[0]; // 첫 번째 장소를 선택된 장소로 설정
-//         }
-//         console.log(placeList.value); // 수정된 점
-//     },
-//     (error) => {
-//         console.error('장소를 가져오는데 실패했습니다:', error);
-//     }
-// )}
-
-const getPlaces = async () => {
-  const data = await fetchPlaces(keyword.value, latitude.value, longitude.value)
-  console.log(data)
-  placeList.value = data
-}
-
-onMounted(async () => {
+onMounted(() => {
   initDrawers()
-  //await getPlaces();
   const today = new Date()
   currentDay.value = today.getDay()
-  console.log(currentDay.value)
 })
 
 const activeTab = ref('info')
-
-// 부모로 부터 이 중 하나를 받게 될거임
-let placeList = ref([
-  {
-    googleId: 'ChIJc6CiVAakfDUR1KHHcZ5zP08',
-    placeDetailDto: {
-      name: '멀티캠퍼스',
-      fullAddress: '대한민국 서울특별시 강남구 언주로 508',
-      latitude: 37.5038623,
-      longitude: 127.04280120000001,
-      category: '',
-      phoneNumber: '1544-9001',
-      rating: 0.8,
-      photo:
-        'https://lh3.googleusercontent.com/places/ANXAkqGNMJwXhdvg05vwqXRB7kX8drr6ywegIsUgUyKuA5V4MPkhURBiPGMYd-JALwN8eBXG42IZmWUp3rEDHPGr2wyU3jGb2y-ob4U=s4800-w400-h400',
-      placeOpeningHoursDto: {
-        sunday: '월요일: 오전 8:00 ~ 오후 8:00',
-        monday: '화요일: 오전 8:00 ~ 오후 8:00',
-        tuesday: '수요일: 오전 8:00 ~ 오후 8:00',
-        wednesday: '목요일: 오전 8:00 ~ 오후 8:00',
-        thursday: '금요일: 오전 8:00 ~ 오후 8:00',
-        friday: '토요일: 휴무일',
-        saturday: '일요일: 휴무일'
-      }
-    }
-  },
-  {
-    googleId: 'ChIJe-e1sRKlfDURTypK0nSHBJA',
-    placeDetailDto: {
-      name: '멀티캠퍼스 선릉',
-      fullAddress: '대한민국 서울특별시 강남구 대치동 889-41',
-      latitude: 37.503375999999996,
-      longitude: 127.049776,
-      category: '',
-      phoneNumber: '1544-9001',
-      rating: 4.8,
-      photo:
-        'https://lh3.googleusercontent.com/places/ANXAkqFkx8YSfkZyznThmqQYOXe9CHdN396FeDnRLCdq8mhwMWftg2t51WtNMv71-jZZE-QFHW1yxu5MkR3FFCBDIDK-Kw_h-opSOMQ=s4800-w400-h400',
-      placeOpeningHoursDto: {
-        sunday: '해당 매장에서 정보를 제공하지 않습니다',
-        monday: '해당 매장에서 정보를 제공하지 않습니다',
-        tuesday: '해당 매장에서 정보를 제공하지 않습니다',
-        wednesday: '해당 매장에서 정보를 제공하지 않습니다',
-        thursday: '해당 매장에서 정보를 제공하지 않습니다',
-        friday: '해당 매장에서 정보를 제공하지 않습니다',
-        saturday: '해당 매장에서 정보를 제공하지 않습니다'
-      }
-    }
-  },
-  {
-    googleId: 'ChIJYYkSZ_-jfDURXbzF_-hWWgU',
-    placeDetailDto: {
-      name: '멀티캠퍼스 역삼',
-      fullAddress: '대한민국 서울특별시 강남구 테헤란로 212',
-      latitude: 37.501286,
-      longitude: 127.03960289999999,
-      category: '',
-      phoneNumber: '1544-9001',
-      rating: 4.2,
-      photo:
-        'https://lh3.googleusercontent.com/places/ANXAkqEg1mpi81ypmvIix1rVTX7M4uTcODjdne3BdD6Q6RbnC-n9yRBz44_nKyMUFF-C6lkd7cb-C39CjQ9AEAQ_0z-xD3etPJB1YYw=s4800-w400-h400',
-      placeOpeningHoursDto: {
-        sunday: '월요일: 오전 8:00 ~ 오후 6:00',
-        monday: '화요일: 오전 8:00 ~ 오후 6:00',
-        tuesday: '수요일: 오전 8:00 ~ 오후 6:00',
-        wednesday: '목요일: 오전 8:00 ~ 오후 6:00',
-        thursday: '금요일: 오전 8:00 ~ 오후 6:00',
-        friday: '토요일: 휴무일',
-        saturday: '일요일: 휴무일'
-      }
-    }
-  }
-])
-//TODO 리스트 중에 하나 눌렀다 치고!
-const selectedPlace = ref(placeList.value[1])
 
 // TODO 요일 정보 없으면 그냥 그쪽에서 제공 안 했다고 하면 되잖아
 const bPlaceOpeningHour = computed(
@@ -193,35 +31,16 @@ const fullStars = computed(() => Math.floor(selectedPlace.value.placeDetailDto.r
 const emptyStars = computed(() => Math.floor(5 - fullStars.value))
 </script>
 <template>
-  <!-- drawer init and toggle -->
-  <div class="text-center">
-    <button
-      @click="openDrawer"
-      type="button"
-      data-drawer-target="drawer-disabled-backdrop"
-      data-drawer-show="drawer-disabled-backdrop"
-      data-drawer-backdrop="false"
-      aria-controls="drawer-disabled-backdrop"
-    >
-      Show drawer without backdrop
-    </button>
-  </div>
-
-  <!-- drawer component -->
-  <!-- <div v-if="isLoading" class="text-xl font-bold" id="drawer-disabled-backdrop">
-      Loading...
-    </div> -->
-
-  <!-- <div v-else-if="selectedPlace" -->
   <div
-    id="drawer-disabled-backdrop"
-    class="flex flex-col fixed top-0 left-0 z-40 h-screen w-96 overflow-y-auto transition-transform -translate-x-full rounded-lg bg-white dark:bg-gray-700"
+    v-if="isDrawerOpen"
+    style="left: 53rem"
+    class="flex flex-col fixed top-0 z-50 h-screen w-96 transition-transform -translate-x-full rounded-lg bg-white dark:bg-gray-700 overflow-y-scroll custom-scrollbar"
     tabindex="-1"
     aria-labelledby="drawer-disabled-backdrop-label"
   >
-    <!-- <h5 id="drawer-disabled-backdrop-label" class="text-base font-semibold text-gray-500 uppercase dark:text-gray-400">Menu</h5> -->
     <!-- 닫기 버튼 -->
     <button
+      @click="closeDrawer(drawer)"
       type="button"
       data-drawer-hide="drawer-disabled-backdrop"
       aria-controls="drawer-disabled-backdrop"
@@ -256,7 +75,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
         />
       </div>
       <div class="p-4">
-        <h2 class="text-2xl font-bold mb-2">{{ selectedPlace.placeDetailDto.name }}</h2>
+        <h2 class="text-sm font-bold mb-2">{{ selectedPlace.placeDetailDto.name }}</h2>
         <div name="ratingByStars" class="flex items-center mb-3">
           <span v-for="n in fullStars">
             <svg
@@ -341,14 +160,14 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
         <!-- 상세 정보 -->
         <div name="place_info" v-if="activeTab === 'info'" class="p-4">
           <dl
-            class="max-w-md text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700"
+            class="max-w-md text-wrap text-gray-900 divide-y divide-gray-200 dark:text-white dark:divide-gray-700"
           >
             <div
               v-if="selectedPlace.placeDetailDto.category"
               class="flex flex-col pb-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               <dt class="mb-1 text-sm text-gray-500 md:text-lg dark:text-gray-400">주소</dt>
-              <dd class="text-lg font-semibold" id="full-address">
+              <dd class="text-base font-light" id="full-address">
                 {{ selectedPlace.placeDetailDto.fullAddress }}
               </dd>
             </div>
@@ -357,13 +176,14 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
               class="flex flex-col pb-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               <dt class="mb-1 text-sm text-gray-500 md:text-lg dark:text-gray-400">주소</dt>
-              <dd class="text-lg font-semibold">{{ selectedPlace.placeDetailDto.fullAddress }}</dd>
+              <dd class="text-base font-light">{{ selectedPlace.placeDetailDto.fullAddress }}</dd>
             </div>
+
             <div
               class="flex flex-col py-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               <dt class="mb-1 text-sm text-gray-500 md:text-lg dark:text-gray-400">전화번호</dt>
-              <dd class="text-lg font-semibold">{{ selectedPlace.placeDetailDto.phoneNumber }}</dd>
+              <dd class="text-base font-light">{{ selectedPlace.placeDetailDto.phoneNumber }}</dd>
             </div>
             <div
               v-if="bPlaceOpeningHour"
@@ -371,7 +191,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
             >
               <dt class="mb-1 text-sm text-gray-500 md:text-lg dark:text-gray-400">영업 정보</dt>
               <dd
-                class="text-lg font-semibold"
+                class="text-base font-light"
                 v-for="(day, index) in selectedPlace.placeDetailDto.placeOpeningHoursDto"
                 :key="index"
                 :class="{ 'text-primary-700': index === daysOfWeek[currentDay] }"
@@ -392,4 +212,22 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
   <!-- </div> -->
 </template>
 
-<style scoped></style>
+<style scoped>
+.custom-scrollbar::-webkit-scrollbar {
+  width: 12px; /* 스크롤바 너비 */
+}
+
+.custom-scrollbar::-webkit-scrollbar-track {
+  background: #f1f1f1; /* 트랙 배경색 */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb {
+  background-color: #888; /* 스크롤바 색상 */
+  border-radius: 10px; /* 스크롤바 모서리 둥글게 */
+  border: 3px solid #f1f1f1; /* 스크롤바 경계선 */
+}
+
+.custom-scrollbar::-webkit-scrollbar-thumb:hover {
+  background: #555; /* 스크롤바 호버 색상 */
+}
+</style>

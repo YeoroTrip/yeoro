@@ -1,16 +1,44 @@
 <script setup>
-import { ref } from 'vue'
+import { ref, provide, readonly, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
+import { usePlaceStore } from '@/stores/place'
 import PlaceList from '@/components/map/PlaceList.vue'
 const route = useRoute()
 const userInput = ref()
 userInput.value = route.query.keyword
+//dumpy
+const latitude = ref(37.5665)
+const longitude = ref(126.978)
+const placeList = ref([])
+
+//resource
+provide('res', {
+  placeList: placeList
+})
+
+import mapAPI from '@/api/map'
+const tmpFunc = async () => {
+  await mapAPI.getPlaces(
+    userInput.value,
+    latitude.value,
+    longitude.value,
+    (response) => {
+      placeList.value = response.data
+    },
+    (error) => {
+      console.log('에러발생 ', error)
+    }
+  )
+}
+onMounted(() => {
+  tmpFunc()
+})
 </script>
 
 <template>
   <aside
     id="new-sidebar"
-    class="fixed top-0 left-20 z-40 w-24 min-w-80 h-screen bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-gray-300"
+    class="fixed top-0 left-20 z-40 w-96 min-w-80 h-screen bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-gray-300"
     aria-label="Search Sidebar"
   >
     <div class="p-4">
@@ -30,13 +58,17 @@ userInput.value = route.query.keyword
             clip-rule="evenodd"
           />
         </svg>
+
         <!-- 입력란 -->
         <input
           type="text"
           id="search-text"
           aria-describedby="search-text-explanation"
           class="bg-gray-50 border-none text-gray-900 text-sm rounded-lg focus:border-primary-500 block w-full p-2.5 pl-0 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-primary-500"
-          :placeholder="userInput"
+          :placeholder="검색어"
+          :value="userInput"
+          v-model="userInput"
+          @keydown.enter="tmpFunc"
         />
       </div>
     </div>

@@ -1,7 +1,6 @@
 <script setup>
 import NavBar from '@/layout/NavBar.vue'
 import SearchBar from '@/components/SearchBar.vue'
-import TestView from '@/views/TestView.vue'
 </script>
 
 <template>
@@ -15,9 +14,7 @@ import TestView from '@/views/TestView.vue'
     <h1>여행을 떠나고 싶으신가요? 우리 사이트좀 이용해주세요!!</h1>
     <SearchBar />
   </div>
-  <main>
-    <TestView></TestView>
-  </main>
+  <main></main>
 </template>
 
 <style scoped>
