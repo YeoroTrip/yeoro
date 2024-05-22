@@ -3,29 +3,21 @@ import { ref, inject, readonly, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import PlaceList from '@/components/map/PlaceList.vue'
 const route = useRoute()
-const userInput = ref()
+const userInput = ref('')
 
-const { isDrawerOpen } = inject(`res`)
+const { isDrawerOpen, keyword } = inject(`res`)
 const { fetchPlaces } = inject(`service`)
 
-//init value 처음에는 멀캠 기준으로 검색함
-const latitude = ref(37.5665)
-const longitude = ref(126.978)
-
-
-const getPlaces = () => {
-  console.log(userInput.value)
-  fetchPlaces(userInput.value, latitude.value, longitude.value);
+const handleSearchSubmit = () => {
+  keyword.value = userInput.value
+  fetchPlaces()
   isDrawerOpen.value = false
 }
 
 onMounted(() => {
   userInput.value = route.query.keyword
-  getPlaces()
-  isDrawerOpen.value = false
+  handleSearchSubmit()
 })
-  
-
 </script>
 
 <template>
@@ -59,8 +51,8 @@ onMounted(() => {
           aria-describedby="search-text-explanation"
           class="bg-gray-50 border-none text-gray-900 text-sm rounded-lg focus:border-primary-500 block w-full p-2.5 pl-0 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:border-primary-500"
           placeholder="검색어"
-          :v-model="userInput"
-          @keydown.enter="fetchPlaces"
+          v-model="userInput"
+          @keydown.enter="handleSearchSubmit"
         />
       </div>
     </div>

@@ -9,13 +9,16 @@ onMounted(() => {
   initDrawers()
   const today = new Date()
   currentDay.value = today.getDay()
+
+  //test
+  console.log(selectedPlace.value)
 })
 
 const { selectedPlace, isDrawerOpen } = inject('res')
 const activeTab = ref('info')
 const bPlaceOpeningHour = computed(
   () =>
-  selectedPlace.value.placeDetailDto.placeOpeningHoursDto['sunday'] !=
+    selectedPlace.value.placeDetailDto.placeOpeningHoursDto['sunday'] !=
     '해당 매장에서 정보를 제공하지 않습니다'
 )
 
@@ -60,8 +63,11 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
     </button>
 
     <!-- <div class="min-h-screen flex flex-col items-center bg-gray-100"> -->
-    <div v-if="selectedPlace.placeDetailDto.photo" class="flex flex-col bg-white">
-      <div class="w-full overflow-hidden aspect-w-3 aspect-h-2">
+    <div class="flex flex-col bg-white">
+      <div
+        v-if="selectedPlace.placeDetailDto.photo"
+        class="w-full overflow-hidden aspect-w-3 aspect-h-2"
+      >
         <img
           :src="selectedPlace?.placeDetailDto?.photo"
           alt="placeholder"
@@ -69,10 +75,12 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
           draggable="false"
         />
       </div>
-      <div class="p-4 bg-white dark:bg-gray-800 ">
-        <h2 class="text-sm font-bold mb-2 dark:text-white">{{ selectedPlace.placeDetailDto.name }}</h2>
+      <div class="p-4 bg-white dark:bg-gray-800">
+        <h2 class="text-lg font-extrabold mb-2 dark:text-white">
+          {{ selectedPlace.placeDetailDto.name }}
+        </h2>
         <div name="ratingByStars" class="flex items-center mb-3">
-          <span v-for="n in fullStars">
+          <span v-for="(n, index) in fullStars" :key="index">
             <svg
               class="w-4 h-4 text-yellow-300 me-1"
               aria-hidden="true"
@@ -85,7 +93,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
               />
             </svg>
           </span>
-          <span v-for="n in emptyStars">
+          <span v-for="(n, index) in emptyStars" :key="index">
             <svg
               class="w-4 h-4 text-gray-300 me-1 dark:text-gray-500"
               aria-hidden="true"
@@ -111,7 +119,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
             <button
               @click="activeTab = 'info'"
               :class="{ 'text-primary-700': activeTab === 'info' }"
-              class="py-2 bg-transparent text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              class="py-2 bg-transparent text-sm font-bold text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -132,7 +140,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
             <button
               @click="activeTab = 'chat'"
               :class="{ 'text-primary-700': activeTab === 'chat' }"
-              class="py-2 bg-transparent text-gray-400 hover:text-gray-900 dark:hover:text-white"
+              class="py-2 bg-transparent text-sm font-bold text-gray-400 hover:text-gray-900 dark:hover:text-white"
             >
               <svg
                 xmlns="http://www.w3.org/2000/svg"
@@ -163,8 +171,8 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
               class="flex flex-col pb-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               <dt class="mb-1 text-sm text-gray-500 md:text-lg dark:text-gray-400">주소</dt>
-              <dd class="text-base font-light" id="full-address">
-                {{ selectedPlace.placeDetailDto.fullAddress }}
+              <dd class="text-base font-bold" id="full-address">
+                {{ selectedPlace.placeDetailDto.category }}
               </dd>
             </div>
 
@@ -172,28 +180,38 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
               class="flex flex-col pb-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               <dt class="mb-1 text-sm text-gray-500 md:text-lg dark:text-gray-400">주소</dt>
-              <dd class="text-base font-light">{{ selectedPlace.placeDetailDto.fullAddress }}</dd>
+              <dd class="text-base font-bold">{{ selectedPlace.placeDetailDto.fullAddress }}</dd>
             </div>
 
             <div
               class="flex flex-col py-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
             >
               <dt class="mb-1 text-sm text-gray-500 md:text-lg dark:text-gray-400">전화번호</dt>
-              <dd class="text-base font-light">{{ selectedPlace.placeDetailDto.phoneNumber }}</dd>
+              <dd class="text-base font-bold">{{ selectedPlace.placeDetailDto.phoneNumber }}</dd>
             </div>
             <div
-              v-if="bPlaceOpeningHour"
               class="flex flex-col pt-3 hover:bg-gray-100 dark:hover:bg-gray-800 dark:hover:text-white"
             >
-              <dt class="mb-1 text-sm text-gray-500 md:text-lg dark:text-gray-400">영업 정보</dt>
+              <dt class="mb-1 text-sm text-gray-500 md:text-lg dark:text-gray-400">
+                영업 정보
+                <!-- <span
+                  class="inline-flex items-center bg-green-100 text-green-800 text-xs font-medium px-2.5 py-0.5 rounded-full dark:bg-green-900 dark:text-green-300"
+                >
+                  <span class="w-2 h-2 me-1 bg-green-500 rounded-full"></span>
+                  Available
+                </span> -->
+              </dt>
+
               <dd
-                class="text-base font-light"
+                v-if="bPlaceOpeningHour"
+                class="text-base font-bold"
                 v-for="(day, index) in selectedPlace.placeDetailDto.placeOpeningHoursDto"
                 :key="index"
                 :class="{ 'text-primary-700': index === daysOfWeek[currentDay] }"
               >
                 {{ day }}
               </dd>
+              <dd v-else class="text-base font-bold">해당 매장에서 정보를 제공하지 않습니다</dd>
             </div>
           </dl>
         </div>
