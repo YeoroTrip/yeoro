@@ -39,7 +39,7 @@ public class RabbitConfig {
     //Queue 등록
     @Bean
     public Queue queue() {
-        return new Queue(CHAT_QUEUE_NAME, true);
+        return new Queue(CHAT_QUEUE_NAME, true, false, false);
     }
 
     //Exchange 등록

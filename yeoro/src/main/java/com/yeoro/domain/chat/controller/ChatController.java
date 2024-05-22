@@ -1,7 +1,8 @@
 package com.yeoro.domain.chat.controller;
 
+import com.yeoro.domain.chat.entity.Chat;
 import com.yeoro.domain.chat.model.dto.ChatDto;
-import com.yeoro.domain.chat.model.repository.ChatRepository;
+import com.yeoro.domain.chat.model.service.ChatService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.annotation.RabbitListener;
@@ -22,7 +23,7 @@ public class ChatController {
     private final static String CHAT_QUEUE_NAME = "chat.queue";
 
     private final RabbitTemplate rabbitTemplate;
-    private final ChatRepository chatRepository;
+    private final ChatService chatService;
 
     @MessageMapping("chat.enter.{chatRoomId}")
     public void enterUser(@Payload ChatDto chatDto, @DestinationVariable String chatRoomId){
@@ -40,6 +41,9 @@ public class ChatController {
 
     @RabbitListener(queues=CHAT_QUEUE_NAME)
     public void receive(ChatDto chatDto){
-        System.out.println("received: " + chatDto.getMessage());
+        log.info("received: " + chatDto.getMessage() + "\tsender :" + chatDto.getSender());
+        Chat chat = chatDto.toEntity();
+
+        chatService.createChat(chat);
     }
 }

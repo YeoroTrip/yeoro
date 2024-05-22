@@ -1,55 +1,39 @@
-//package com.yeoro.domain.chat.model.service;
-//
-//import com.fasterxml.jackson.databind.ObjectMapper;
-//import com.yeoro.domain.chat.handler.WebSocketHandler;
-//import com.yeoro.domain.chat.model.dto.ChatRoom;
-//import jakarta.annotation.PostConstruct;
-//import lombok.RequiredArgsConstructor;
-//import lombok.extern.slf4j.Slf4j;
-//import org.springframework.stereotype.Service;
-//import org.springframework.web.socket.TextMessage;
-//import org.springframework.web.socket.WebSocketSession;
-//
-//import java.io.IOException;
-//import java.util.*;
-//
-//@Slf4j
-//@RequiredArgsConstructor
-//@Service
-//public class ChatService {
-//    private final ObjectMapper objectMapper;
-//    private Map<String, ChatRoom> chatRooms;
-//
-//    @PostConstruct
-//    private void init(){
-//        chatRooms = new LinkedHashMap<>();
-//    }
-//
-//    public List<ChatRoom> findAllRoom(){
-//        return new ArrayList<>(chatRooms.values());
-//    }
-//
-//    public ChatRoom findRoomById(String roomId){
-//        return chatRooms.get(roomId);
-//    }
-//
-//    public ChatRoom createRoom(String name){
-//        String randomId = UUID.randomUUID().toString();
-//        ChatRoom chatRoom = ChatRoom.builder()
-//                .roomId(randomId)
-//                .name(name)
-//                .build();
-//        chatRooms.put(randomId, chatRoom);
-//        System.out.println(randomId);
-//        return chatRoom;
-//    }
-//
-//    public<T> void sendMessage(WebSocketSession session, T message){
-//        try{
-//            session.sendMessage(new TextMessage(objectMapper.writeValueAsString(message)));
-//        } catch (IOException e){
-//            log.error(e.getMessage(), e);
-//        }
-//    }
-//
-//}
+package com.yeoro.domain.chat.model.service;
+
+import com.yeoro.domain.chat.entity.Chat;
+import com.yeoro.domain.chat.model.dto.ChatDto;
+import com.yeoro.domain.chat.model.repository.ChatRepository;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
+
+@Slf4j
+@RequiredArgsConstructor
+@Service
+public class ChatService {
+    private final ChatRepository chatRepository;
+
+    @Transactional
+    public List<ChatDto> getChatList(String roomId){
+        List<Chat> chatList = chatRepository.findTop50ByRoomIdAndTimeLessThanOrderByTimeDesc(roomId, LocalDateTime.now());
+        for(Chat chat: chatList){
+            System.out.println(chat.getMessage());
+        }
+
+        List<ChatDto> chatDtos = chatList.stream().map(chat -> chat.toDto()).collect(Collectors.toList());
+
+        return chatDtos;
+    }
+
+    @Transactional
+    public boolean createChat(Chat chat){
+        chat = chatRepository.save(chat);
+
+        return chat!=null? true: false;
+    }
+}
