@@ -42,26 +42,40 @@ class UserServiceImpl implements UserService {
 	@Override
 	public boolean updateUser(UserDto userDto, MultipartFile file) throws Exception {
 	   try {
-		   if (!file.isEmpty()) {
+		   if (file != null) {
 			   String realPath = servletContext.getRealPath(UPLOAD_PATH);
 			   String today = new SimpleDateFormat("yyMMdd").format(new Date());
 			   String saveFolder = realPath + File.separator + today;
 			   File folder = new File(saveFolder);
-
+			   
+			   String fileName = userDto.getUserId();
+			   
+			   
+				int index = file.getOriginalFilename().lastIndexOf('.');
+				if (index > 0 && index < file.getOriginalFilename().length() - 1) {
+					fileName += file.getOriginalFilename().substring(index + 1);
+				}
+			    
 			   if (!folder.exists())
 				   folder.mkdirs();
-
-			   Path filePath = Paths.get(realPath + file.getOriginalFilename());
+			
+			   file.getOriginalFilename();
+			   Path filePath = Paths.get(saveFolder +"/"+ fileName);
 			   Files.copy(file.getInputStream(), filePath);
-			   if(userDto.getPictureUrl().isEmpty()) {
-				   userMapper.deletePicture(userDto.getUserId());
+			   
+			   // 기존 프로필 삭제
+					   if(userDto.getPictureUrl() != null) {
+						   System.out.println(userDto.toString());
+						   userMapper.deletePicture(userDto.getUserId());
+					   }
+					   userDto.setPictureUrl(filePath.toString());
+				   }
+			   } catch (Exception e) {
+				   log.error("파일 처리 도중 문제가 생겼습니다. : {}", e);
 			   }
-			   userDto.setPictureUrl(filePath.toString());
-		   }
-	   } catch (Exception e) {
-		   log.error("파일 처리 도중 문제가 생겼습니다. : {}", e);
-	   }
 
+	   
+	   
 		return userMapper.updateUser(userDto) > 0;
 	}
 
