@@ -1,5 +1,6 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
+import { Client } from '@stomp/stompjs'
 import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
 
 import '@/style.css'
