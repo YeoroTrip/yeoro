@@ -2,7 +2,6 @@
 import { inject } from 'vue'
 import PlaceListItem from '@/components/map/PlaceListItem.vue'
 const { placeList } = inject('res')
-
 </script>
 
 <template>
@@ -14,7 +13,7 @@ const { placeList } = inject('res')
   ></div>
   <div class="container mx-auto">
     <div class="custom-scroll grid grid-cols-1 overflow-y-auto max-h-screen">
-      <PlaceListItem v-for="(item, index) in placeList" :key="index" :item="item" />
+      <PlaceListItem v-for="(item, index) in placeList" :key="index" :item="item"/>
     </div>
   </div>
 </template>

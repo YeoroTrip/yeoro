@@ -1,15 +1,9 @@
 <script setup>
-import { ref, onMounted, computed } from 'vue'
+import { ref, onMounted, computed, inject } from 'vue'
 import { initDrawers } from 'flowbite'
 
 const currentDay = ref('')
 const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-const isDrawerOpen = ref(false)
-const selectedPlace = ref(null)
-
-const closeDrawer = () => {
-  isDrawerOpen.value = false
-}
 
 onMounted(() => {
   initDrawers()
@@ -17,22 +11,23 @@ onMounted(() => {
   currentDay.value = today.getDay()
 })
 
+const { selectedPlace, isDrawerOpen } = inject('res')
 const activeTab = ref('info')
-
-// TODO 요일 정보 없으면 그냥 그쪽에서 제공 안 했다고 하면 되잖아
 const bPlaceOpeningHour = computed(
   () =>
-    selectedPlace.value.placeDetailDto.placeOpeningHoursDto['sunday'] !=
+  selectedPlace.value.placeDetailDto.placeOpeningHoursDto['sunday'] !=
     '해당 매장에서 정보를 제공하지 않습니다'
 )
 
+const closeDrawer = () => {
+  isDrawerOpen.value = false
+}
 // 평점
 const fullStars = computed(() => Math.floor(selectedPlace.value.placeDetailDto.rating))
 const emptyStars = computed(() => Math.floor(5 - fullStars.value))
 </script>
 <template>
   <div
-    v-if="isDrawerOpen"
     style="left: 53rem"
     class="flex flex-col fixed top-0 z-50 h-screen w-96 transition-transform -translate-x-full rounded-lg bg-white dark:bg-gray-700 overflow-y-scroll custom-scrollbar"
     tabindex="-1"
@@ -40,7 +35,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
   >
     <!-- 닫기 버튼 -->
     <button
-      @click="closeDrawer(drawer)"
+      @click="closeDrawer"
       type="button"
       data-drawer-hide="drawer-disabled-backdrop"
       aria-controls="drawer-disabled-backdrop"
@@ -65,7 +60,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
     </button>
 
     <!-- <div class="min-h-screen flex flex-col items-center bg-gray-100"> -->
-    <div class="flex flex-col bg-white">
+    <div v-if="selectedPlace.placeDetailDto.photo" class="flex flex-col bg-white">
       <div class="w-full overflow-hidden aspect-w-3 aspect-h-2">
         <img
           :src="selectedPlace?.placeDetailDto?.photo"
@@ -74,8 +69,8 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
           draggable="false"
         />
       </div>
-      <div class="p-4">
-        <h2 class="text-sm font-bold mb-2">{{ selectedPlace.placeDetailDto.name }}</h2>
+      <div class="p-4 bg-white dark:bg-gray-800 ">
+        <h2 class="text-sm font-bold mb-2 dark:text-white">{{ selectedPlace.placeDetailDto.name }}</h2>
         <div name="ratingByStars" class="flex items-center mb-3">
           <span v-for="n in fullStars">
             <svg
@@ -110,6 +105,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
           <p class="ms-1 text-sm font-medium text-gray-500 dark:text-gray-400">5.0</p>
         </div>
 
+        <!-- 탭 -->
         <div class="border-t border-gray-300">
           <div class="flex justify-around mt-2">
             <button
