@@ -2,15 +2,21 @@
 import { Disclosure, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/vue'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
+import { useNoticeStore } from '@/stores/notice'
 import { storeToRefs } from 'pinia'
 import { computed, ref } from 'vue'
 const userStore = useUserStore()
+const noticeStore = useNoticeStore()
+
 const { getUserInfo } = userStore
 const { userInfo, isLogin, isLoginError } = storeToRefs(userStore)
+const router = useRouter()
+
+
 const defaultProfile = ref('@/assets/img/logo-yeoro.png')
 const PROFILE_PATH = "http://" + window.location.hostname + ':8080/img/upload/profile/'
 const previewImage = computed( () => 
-  userInfo.value.pictureUrl ? PROFILE_PATH + userInfo.value.pictureUrl : defaultProfile.value
+  userInfo.value ? PROFILE_PATH + userInfo.value.pictureUrl : defaultProfile.value
 )
 
 // 로그아웃 처리 함수
@@ -19,7 +25,6 @@ function logout() {
   router.push(`/`)
 }
 
-const router = useRouter()
 const profileClick = () => {
   if (!isLogin.value) {
     router.push({ name: 'Login' })
@@ -33,11 +38,10 @@ const myPageClick = () => {
     router.push({ name: 'MyPage' })
   }
 }
-
 const noticeClick = () => {
+  
   router.push({ name: 'notice' })
 }
-
 </script>
 
 <template>
@@ -66,7 +70,6 @@ const noticeClick = () => {
             </div>
 
             <transition
-              v-if="isLogin"
               transition
               ease-out
               duration-100
@@ -79,7 +82,7 @@ const noticeClick = () => {
               <MenuItems
                 class="absolute right-0 z-10 mt-2 w-48 origin-top-right rounded-md bg-white py-1 shadow-lg ring-1 ring-black ring-opacity-5 focus:outline-none"
               >
-                <MenuItem v-slot="{ active }">
+                <MenuItem v-if="isLogin" v-slot="{ active }">
                   <a
                     herf="#"
                     @click="myPageClick"
@@ -87,7 +90,7 @@ const noticeClick = () => {
                     >내 정보</a
                   >
                 </MenuItem>
-                <MenuItem v-slot="{ active }">
+                <MenuItem v-if="isLogin" v-slot="{ active }">
                   <a
                     href="#"
                     @click="logout"
@@ -100,7 +103,7 @@ const noticeClick = () => {
                     herf="#"
                     @click="noticeClick"
                     :class="[active ? 'bg-gray-100' : '', 'block px-4 py-2 text-sm text-gray-700']"
-                    >고객센터</a
+                    >공지사항</a
                   >
                 </MenuItem>
               </MenuItems>

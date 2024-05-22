@@ -1,4 +1,5 @@
 import { localAxios } from '@/util/http-common'
+
 const noticeAPI = localAxios()
 
 async function getNoticeList(success, fail) {
@@ -10,11 +11,11 @@ async function getNotice(id, success, fail) {
 }
 
 async function register(notice, success, fail) {
-    await noticeAPI.post(`/notice`).then(success).catch(fail)
+    await noticeAPI.post(`/notice`, notice).then(success).catch(fail)
 }
 
-async function modify(notice, id, success, fail) {
-    await noticeAPI.get(`/notice/${id}`).then(success).catch(fail)
+async function modify(id, notice, success, fail) {
+    await noticeAPI.post(`/notice/${id}`, notice).then(success).catch(fail)
 }
 
 async function remove(id, success, fail) {
