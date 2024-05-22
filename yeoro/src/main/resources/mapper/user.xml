@@ -19,9 +19,19 @@
 	</insert>
 
 	<update id="updateUser" parameterType="com.yeoro.domain.user.model.dto.UserDto">
-		UPDATE user
-		SET password=#{password}, nickname=#{nickname}, picture_url=#{pictureUrl,  jdbcType=VARCHAR}
-		WHERE user_id=#{userId}
+	    UPDATE user
+	    <set>
+	        <if test="password != null">
+	            password=#{password},
+	        </if>
+	        <if test="nickname != null">
+	            nickname=#{nickname},
+	        </if>
+	        <if test="pictureUrl != null">
+	            picture_url=#{pictureUrl, jdbcType=VARCHAR},
+	        </if>
+	    </set>
+	    WHERE user_id=#{userId}
 	</update>
 
 	<delete id="deleteUser" parameterType="string">
@@ -59,9 +69,10 @@
 	</delete>
 
 
-	<delete id="deletePicture" parameterType="string">
-		DELETE FROM picture_url
-		WHERE user_id = #{user_id}
-	</delete>
+	<update id="deletePicture" parameterType="string">
+		UPDATE user
+		SET picture_url = NULL
+		WHERE user_id=#{userId}
+	</update>
 
 </mapper>

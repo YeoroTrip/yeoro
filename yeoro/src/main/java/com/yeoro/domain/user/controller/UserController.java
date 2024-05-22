@@ -39,7 +39,7 @@ public class UserController {
 	@PostMapping("/register")
 	public ResponseEntity<Map<String, Object>> register(@RequestBody UserDto userDto) {
 		Map<String, Object> resultMap = new HashMap<>();
-	    HttpStatus status;
+	    HttpStatus status = HttpStatus.ACCEPTED;
 	    try {
 	        boolean result = userService.addUser(userDto);
 			if(result) {
@@ -62,7 +62,7 @@ public class UserController {
 	public ResponseEntity<Map<String, Object>> unregister(@PathVariable String userId, HttpServletRequest request) {
 
 		Map<String, Object> resultMap = new HashMap<>();
-	    HttpStatus status;
+	    HttpStatus status = HttpStatus.ACCEPTED;
 
 		String token = request.getHeader("Authorization");
 		log.debug("[회원탈퇴 ]Token : {}", token);
@@ -91,27 +91,35 @@ public class UserController {
 	}
 
 	@Operation(summary="내 정보 수정", description = "회원 아이디와 토큰 정보로 인증 후, 입력받은 사용자 정보로 갱신한다.")
-	@PatchMapping(value = "/my", consumes = "multipart/form-data")
+	@PutMapping(value = "/my", consumes = "multipart/form-data")
 	public ResponseEntity<Map<String, Object>> modifyUser(@RequestPart("userDto") UserDto userDto,
-														  @RequestPart("file") MultipartFile file,
+														  @RequestPart(value = "file", required = false)MultipartFile file,
 														  HttpServletRequest request) {
 	    Map<String, Object> resultMap = new HashMap<>();
-	    HttpStatus status;
-	    try {
-			if(jwtUtil.checkToken(request.getHeader("Authorization"))) {}
-	    	boolean result = userService.updateUser(userDto, file);
-	        if(result) {
-	            resultMap.put("message", "사용자 정보가 성공적으로 수정되었습니다.");
-	            status = HttpStatus.OK;
-	        } else {
-	            resultMap.put("message", "사용자 정보 수정에 실패했습니다.");
-	            status = HttpStatus.BAD_REQUEST;
-	        }
-	    } catch (Exception e) {
-	        log.error("회원 정보 수정 에러 발생: {}", e);
-	        resultMap.put("message", "회원 정보 수정 중 서버 에러가 발생했습니다.");
-	        status = HttpStatus.INTERNAL_SERVER_ERROR;
-	    }
+	    HttpStatus status = HttpStatus.ACCEPTED;
+	    
+		if(jwtUtil.checkToken(request.getHeader("Authorization"))) {
+			System.out.println("[내 정보 수정] getUserId : " + userDto.getUserId());
+		    try {
+		    	
+		    	boolean result = userService.updateUser(userDto, file);
+		        if(result) {
+		            resultMap.put("message", "사용자 정보가 성공적으로 수정되었습니다.");
+		            status = HttpStatus.OK;
+		        } else {
+		            resultMap.put("message", "사용자 정보 수정에 실패했습니다.");
+		            status = HttpStatus.BAD_REQUEST;
+		        }
+				
+		    } catch (Exception e) {
+		        log.error("회원 정보 수정 에러 발생: {}", e);
+		        resultMap.put("message", "회원 정보 수정 중 서버 에러가 발생했습니다.");
+		        status = HttpStatus.INTERNAL_SERVER_ERROR;
+		    }
+		} else {
+			log.error("사용 불가능 토큰입니다.");
+			status = HttpStatus.UNAUTHORIZED;
+		}
 	    return new ResponseEntity<>(resultMap, status);
 	}
 
