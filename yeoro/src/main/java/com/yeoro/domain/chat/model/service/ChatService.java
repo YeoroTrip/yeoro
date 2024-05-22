@@ -21,10 +21,6 @@ public class ChatService {
     @Transactional
     public List<ChatDto> getChatList(String roomId){
         List<Chat> chatList = chatRepository.findTop50ByRoomIdAndTimeLessThanOrderByTimeDesc(roomId, LocalDateTime.now());
-        for(Chat chat: chatList){
-            System.out.println(chat.getMessage());
-        }
-
         List<ChatDto> chatDtos = chatList.stream().map(chat -> chat.toDto()).collect(Collectors.toList());
 
         return chatDtos;

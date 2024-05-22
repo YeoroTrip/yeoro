@@ -7,6 +7,7 @@ import com.yeoro.domain.chatRoom.model.dto.ChatRoomDto;
 import com.yeoro.domain.chatRoom.model.service.ChatRoomService;
 import com.yeoro.global.result.ResultCode;
 import com.yeoro.global.result.ResultResponse;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.ResponseEntity;
@@ -18,6 +19,7 @@ import java.util.List;
 @Slf4j
 @RequiredArgsConstructor
 @RequestMapping("/chatroom")
+@Tag(name = "채팅 API", description = "여행지 관련 API")
 public class ChatRoomController {
 
     private final ChatRoomService chatRoomService;
