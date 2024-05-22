@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, inject } from 'vue'
+import { ref, onMounted, computed, inject, watch } from 'vue'
 import { initDrawers } from 'flowbite'
 
 const currentDay = ref('')
@@ -9,9 +9,6 @@ onMounted(() => {
   initDrawers()
   const today = new Date()
   currentDay.value = today.getDay()
-
-  //test
-  console.log(selectedPlace.value)
 })
 
 const { selectedPlace, isDrawerOpen } = inject('res')
@@ -25,6 +22,12 @@ const bPlaceOpeningHour = computed(
 const closeDrawer = () => {
   isDrawerOpen.value = false
 }
+
+watch(() => {
+  console.log("ddd", selectedPlace.value.googleId)
+})
+
+
 // 평점
 const fullStars = computed(() => Math.floor(selectedPlace.value.placeDetailDto.rating))
 const emptyStars = computed(() => Math.floor(5 - fullStars.value))
@@ -218,7 +221,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
 
         <!-- 채팅 -->
         <div v-if="activeTab === 'chat'" class="p-4">
-          <p>여기에 채팅 내용을 넣으세요.</p>
+          {{ selectedPlace.googleId }}
         </div>
       </div>
     </div>

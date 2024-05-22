@@ -72,7 +72,8 @@ public class NoticeController {
                             examples = @ExampleObject(
                                     name = "공지사항 예제",
                                     summary = "공지사항 예제 입력",
-                                    description = "이 예제는 공지사항 추가를 위한 예제입니다.",
+                                    description = "이 예제" +
+                                            "는 공지사항 추가를 위한 예제입니다.",
                                     value = "{\"title\": \"공지사항 제목\", \"context\": \"공지사항 내용\", \"important\": true}"
                             )
                     )
@@ -110,7 +111,7 @@ public class NoticeController {
             )
     )
     @Parameter(name = "id", description = "공지사항 아이디", example = "2")
-    @PatchMapping("/{id}")
+    @PostMapping("/{id}")
     public ResponseEntity<Void> updateNotice(@PathVariable Long id, @Valid @RequestBody NoticeDto noticeDto) {
         try {
             noticeDto.setId(id);
