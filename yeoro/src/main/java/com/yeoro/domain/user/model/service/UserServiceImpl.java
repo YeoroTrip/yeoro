@@ -18,17 +18,19 @@ import org.springframework.stereotype.Service;
 import com.yeoro.domain.user.model.dto.UserDto;
 import com.yeoro.domain.user.model.mapper.UserMapper;
 import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Value;
 
 @Slf4j
 @Service
 class UserServiceImpl implements UserService {
-	private final String UPLOAD_PATH = "/upload";
+	@Value("${file.upload-dir}")
+	private String UPLOAD_PATH;
 
 	@Autowired
 	private ServletContext servletContext;
 
 	private UserMapper userMapper;
-   
+
    public UserServiceImpl(UserMapper userMapper) {
        super();
        this.userMapper = userMapper;
@@ -41,41 +43,35 @@ class UserServiceImpl implements UserService {
 
 	@Override
 	public boolean updateUser(UserDto userDto, MultipartFile file) throws Exception {
-	   try {
-		   if (file != null) {
-			   String realPath = servletContext.getRealPath(UPLOAD_PATH);
-			   String today = new SimpleDateFormat("yyMMdd").format(new Date());
-			   String saveFolder = realPath + File.separator + today;
-			   File folder = new File(saveFolder);
-			   
-			   String fileName = userDto.getUserId();
-			   
-			   
+		try {
+			if (file != null) {
+				String saveFolder = UPLOAD_PATH + File.separator + "profile";
+				File folder = new File(saveFolder);
+
+				if (!folder.exists())
+					folder.mkdirs();
+
+				String fileName = userDto.getUserId();
 				int index = file.getOriginalFilename().lastIndexOf('.');
 				if (index > 0 && index < file.getOriginalFilename().length() - 1) {
-					fileName += file.getOriginalFilename().substring(index + 1);
+					fileName += "." + file.getOriginalFilename().substring(index + 1);
 				}
-			    
-			   if (!folder.exists())
-				   folder.mkdirs();
-			
-			   file.getOriginalFilename();
-			   Path filePath = Paths.get(saveFolder +"/"+ fileName);
-			   Files.copy(file.getInputStream(), filePath);
-			   
-			   // 기존 프로필 삭제
-					   if(userDto.getPictureUrl() != null) {
-						   System.out.println(userDto.toString());
-						   userMapper.deletePicture(userDto.getUserId());
-					   }
-					   userDto.setPictureUrl(filePath.toString());
-				   }
-			   } catch (Exception e) {
-				   log.error("파일 처리 도중 문제가 생겼습니다. : {}", e);
-			   }
 
-	   
-	   
+				Path filePath = Paths.get(saveFolder + "/" + fileName);
+
+				// 기존 프로필 삭제
+				if(Files.exists(filePath)) {
+					Files.delete(filePath);
+					userMapper.deletePicture(userDto.getUserId());
+				}
+				log.debug("filname : {}", fileName);
+				Files.copy(file.getInputStream(), filePath);
+				userDto.setPictureUrl(fileName);
+			}
+		} catch (Exception e) {
+			log.error("파일 처리 도중 문제가 생겼습니다. : {}", e);
+		}
+
 		return userMapper.updateUser(userDto) > 0;
 	}
 
@@ -116,7 +112,7 @@ class UserServiceImpl implements UserService {
 		Map<String, String> map = new HashMap<String, String>();
 		map.put("userId", userId);
 		map.put("token", null);
-		userMapper.deleteRefreshToken(map);	
+		userMapper.deleteRefreshToken(map);
 	}
 
 

@@ -15,6 +15,7 @@ const joinSubmit = () =>{
     userAPI.register(user, 
     
     () => {
+        console.log(`회원 가입에 성공했습니다. 가입한 정보로 로그인해주세요!`)
         showPopup.value = true;
     }, 
 

@@ -26,6 +26,8 @@ const register = (user, success, fail) => {
 }
 
 const modify = (formData, success, fail) => {
+  console.log('accessToken : ', sessionStorage.getItem('accessToken'));
+  userAPI.defaults.headers['Authorization'] = sessionStorage.getItem('accessToken')
   userAPI
     .put('/user/my', formData, {
       headers: {

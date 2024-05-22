@@ -3,18 +3,20 @@ import { ref, computed, watch } from 'vue'
 import { storeToRefs } from 'pinia'
 import { useUserStore } from '@/stores/user'
 import PopupComponent from '@/components/PopupComponent.vue'
-import ProfileUploader from '@/components/ProfileUploader.vue'
 import defaultImage from '@/assets/default_profile.png'
 const userStore = useUserStore()
-const { modifyUser, removeUser } = userStore
+const { modifyUser, removeUser, getUserInfo } = userStore
 const { userInfo } = storeToRefs(userStore)
 //
-const previewImage = ref(defaultImage)
+const PROFILE_PATH = "http://" + window.location.hostname + ':8080/img/upload/profile/'
+const previewImage = ref(PROFILE_PATH + userInfo.value.pictureUrl)
 const selectedFile = ref(null)
 
 // 프로필 URL이 변경되었을 때 미리보기를 업데이트
 watch(
-  () => userInfo.profileUrl,
+  () => {
+    previewImage.value
+  },
   (newUrl) => {
     previewImage.value = newUrl ? newUrl : defaultImage
   }
@@ -43,8 +45,6 @@ const triggerFileInput = () => {
 const pageTitle = '내 정보 수정'
 const pageDescription = userInfo.value.nickname + '님! 안녕하세요. 😀'
 
-console.log('userInfo : ', userInfo.value)
-
 //password
 const inputPwd = ref('')
 const checkPwd = ref('')
@@ -54,7 +54,7 @@ const isMatch = computed(() => {
 })
 
 //submit
-const inputUser = ref({ nickname: '', password: '', profileUrl: '' }) // 사용자가 입력한 정보
+const inputUser = ref({ nickname: '', password: '', pictureUrl: '' }) // 사용자가 입력한 정보
 
 const handleSubmit = async () => {
   if (!isMatch.value) {
@@ -67,8 +67,10 @@ const handleSubmit = async () => {
     nickname: inputUser.value.nickname,
     password: inputPwd.value
   }
-
   await modifyUser(user, selectedFile.value)
+  let token = sessionStorage.getItem('accessToken')
+  await getUserInfo(token)
+  previewImage.value = userInfo.value.pictureUrl
 }
 
 // unregister
@@ -82,6 +84,7 @@ const unregister = () => {
   let token = sessionStorage.getItem('accessToken')
   removeUser(token)
 }
+
 </script>
 <template>
   <PopupComponent
