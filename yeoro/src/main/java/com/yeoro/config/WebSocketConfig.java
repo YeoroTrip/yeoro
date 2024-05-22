@@ -23,8 +23,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
     private String rabbitHost;
     @Value("${spring.rabbitmq.virtual-host}")
     private String rabbitVHost;
-    @Value("${spring.rabbitmq.port}")
-    private int rabbitPort;
+    private int rabbitStompPort = 61613;
 
 
     @Override
@@ -36,7 +35,7 @@ public class WebSocketConfig implements WebSocketMessageBrokerConfigurer {
                 .setSystemLogin(rabbitUser)
                 .setSystemPasscode(rabbitPwd)
                 .setRelayHost(rabbitHost)
-                .setRelayPort(rabbitPort)
+                .setRelayPort(rabbitStompPort)
                 .setVirtualHost(rabbitVHost);
 
         // 메시지 발행 url
