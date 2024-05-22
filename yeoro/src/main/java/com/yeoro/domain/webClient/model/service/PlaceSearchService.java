@@ -59,7 +59,9 @@ public class PlaceSearchService {
                 String fullAddress = placeNode.has("formattedAddress") ? placeNode.get("formattedAddress").asText() : "";
                 Double latitude = placeNode.has("location") && placeNode.get("location").has("latitude") ? placeNode.get("location").get("latitude").asDouble() : 0.0;
                 Double longitude = placeNode.has("location") && placeNode.get("location").has("longitude") ? placeNode.get("location").get("longitude").asDouble() : 0.0;
-                String category = placeNode.has("primaryTypeDisplayName") ? placeNode.get("primaryTypeDisplayName").asText() : "";
+                String category = placeNode.has("primaryTypeDisplayName")
+                        && placeNode.get("primaryTypeDisplayName").has("text")
+                        ? placeNode.get("primaryTypeDisplayName").get("text").asText() : "";
                 String phoneNumber = placeNode.has("nationalPhoneNumber") ? placeNode.get("nationalPhoneNumber").asText() : "";
                 Double rating = placeNode.has("rating") ? placeNode.get("rating").asDouble() : 0.0;
                 String photo = placeNode.has("photos") && placeNode.get("photos").isArray() && placeNode.get("photos").size() > 0
@@ -107,13 +109,14 @@ public class PlaceSearchService {
         }
 
         return PlaceOpeningHoursDto.builder()
-                .sunday(weekdayDescriptions.has(0) ? weekdayDescriptions.get(0).asText("") : "")
-                .monday(weekdayDescriptions.has(1) ? weekdayDescriptions.get(1).asText("") : "")
-                .tuesday(weekdayDescriptions.has(2) ? weekdayDescriptions.get(2).asText("") : "")
-                .wednesday(weekdayDescriptions.has(3) ? weekdayDescriptions.get(3).asText("") : "")
-                .thursday(weekdayDescriptions.has(4) ? weekdayDescriptions.get(4).asText("") : "")
-                .friday(weekdayDescriptions.has(5) ? weekdayDescriptions.get(5).asText("") : "")
-                .saturday(weekdayDescriptions.has(6) ? weekdayDescriptions.get(6).asText("") : "")
+                .monday(weekdayDescriptions.has(0) ? weekdayDescriptions.get(0).asText("") : "")
+                .tuesday(weekdayDescriptions.has(1) ? weekdayDescriptions.get(1).asText("") : "")
+                .wednesday(weekdayDescriptions.has(2) ? weekdayDescriptions.get(2).asText("") : "")
+                .thursday(weekdayDescriptions.has(3) ? weekdayDescriptions.get(3).asText("") : "")
+                .friday(weekdayDescriptions.has(4) ? weekdayDescriptions.get(4).asText("") : "")
+                .saturday(weekdayDescriptions.has(5) ? weekdayDescriptions.get(5).asText("") : "")
+                .sunday(weekdayDescriptions.has(6) ? weekdayDescriptions.get(6).asText("") : "")
+
                 .build();
     }
 

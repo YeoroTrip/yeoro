@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.yeoro.domain.chatRoom.model.mapper.ChatRoomMapper">
+
+    <!-- 전체 채팅방 조회 -->
+    <select id="findAllRoom" resultType="ChatRoomDto">
+        SELECT
+            id AS roomId,
+            place_id AS placeId
+        FROM chat_room
+    </select>
+
+    <!-- 채팅방 조회: 여행지 아이디로 조회 -->
+    <select id="findRoomByPlaceId" parameterType="java.lang.Long" resultType="ChatRoomDto">
+        SELECT
+            id AS roomId,
+            place_id AS placeId
+        FROM chat_room
+        WHERE place_id = #{placeId};
+    </select>
+
+    <!-- 채팅방 조회: 구글 플레이스 아이디로 조회 -->
+    <select id="findRoomByGoogleId" parameterType="string" resultType="ChatRoomDto">
+        SELECT
+            chat.id AS roomId,
+            chat.place_id AS placeId
+        FROM chat_room chat
+        JOIN place ON place.google_id = #{googleId}
+    </select>
+
+    <!-- 채팅방 조회: 채팅방 아이디(UUID)로 조회 -->
+    <select id="findRoomById" parameterType="string" resultType="ChatRoomDto">
+        SELECT
+            id AS roomId,
+            place_id AS placeId
+        FROM chat_room
+        WHERE id = #{id};
+    </select>
+
+    <!-- 채팅방 등록-->
+    <insert id="insertRoom" parameterType="ChatRoom">
+        INSERT INTO chat_room (id, place_id, created_at, updated_at)
+        VALUES (
+                   #{id},
+                   (SELECT id FROM place WHERE google_id = #{place.googleId}),
+                   CURRENT_TIMESTAMP,
+                   CURRENT_TIMESTAMP
+               );
+    </insert>
+
+</mapper>
