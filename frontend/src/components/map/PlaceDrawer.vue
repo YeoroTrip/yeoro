@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, inject, onUnmounted } from 'vue'
+import { ref, onMounted, computed, inject, onUnmounted, onUpdated } from 'vue'
 import { initDrawers } from 'flowbite'
 import { Client } from '@stomp/stompjs'
 
@@ -17,6 +17,8 @@ const fullStars = computed(() => Math.floor(selectedPlace.value.placeDetailDto.r
 const emptyStars = computed(() => Math.floor(5 - fullStars.value))
 const chatMessages = ref([])
 const isStompClientActive = ref(false)
+
+const testMessage = ref("")
 
 // STOMP 클라이언트 생성
 const stompClient = new Client({
@@ -75,12 +77,6 @@ onMounted(() => {
   const today = new Date()
   currentDay.value = today.getDay()
 
-  // // STOMP 클라이언트가 활성화되었을 때 메시지 구독을 시도합니다.
-  // console.log("클라이언트 활성화 시작");
-  // subscribeToMessages()
-  // console.log("클라이언트 활성화 끝")
-  // //test
-  // console.log(selectedPlace.value)
 })
 
 // 닫기 버튼 클릭 시 처리 로직
@@ -88,21 +84,30 @@ const closeDrawer = () => {
   isDrawerOpen.value = false
 }
 
-// 채팅 메시지 전송
 const sendMessage = () => {
   if (isStompClientActive.value) {
+    const messageToSend = testMessage.value; // 현재 입력된 메시지 저장
+    testMessage.value = ""; // 입력 필드 초기화
     stompClient.publish({
       destination: '/pub/chat.message.0d612194-0387-4dc0-bf73-ab27f7edf242',
       body: JSON.stringify({
         type: "TALK",
         roomId: "roomdId",
-        sender: "usernickname",
-        message: "message",
+        sender: "me",
+        message: messageToSend, // 저장된 메시지 전송
         time: ""
       })
     })
   }
 }
+
+// DOM 업데이트 후에 스크롤을 최하단으로 이동
+onUpdated(() => {
+      const chatMessagesElement = document.querySelector('.chat-messages');
+      if (chatMessagesElement) {
+        chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+      }
+    });
 </script>
 
 
@@ -143,16 +148,17 @@ const sendMessage = () => {
     <!-- <div class="min-h-screen flex flex-col items-center bg-gray-100"> -->
     <div class="flex flex-col bg-white">
       <div
-        v-if="selectedPlace.placeDetailDto.photo"
-        class="w-full overflow-hidden aspect-w-3 aspect-h-2"
-      >
-        <img
-          :src="selectedPlace?.placeDetailDto?.photo"
-          alt="placeholder"
-          class="w-full h-auto object-cover"
-          draggable="false"
-        />
-      </div>
+  v-if="selectedPlace.placeDetailDto.photo"
+  class="w-full h-60 overflow-hidden"
+>
+  <img
+    :src="selectedPlace?.placeDetailDto?.photo"
+    alt="placeholder"
+    class="w-full h-full object-cover"
+    draggable="false"
+  />
+</div>
+
       <div class="p-4 bg-white dark:bg-gray-800">
         <h2 class="text-lg font-extrabold mb-2 dark:text-white">
           {{ selectedPlace.placeDetailDto.name }}
@@ -192,7 +198,7 @@ const sendMessage = () => {
         </div>
 
         <!-- 탭 -->
-        <div class="border-t border-gray-300">
+        <div class="border-t border-gray-300 tab-buttons">
           <div class="flex justify-around mt-2">
             <button
               @click="activeTab = 'info'"
@@ -295,12 +301,27 @@ const sendMessage = () => {
         </div>
 
         <!-- 채팅 -->
-        <div v-if="activeTab === 'chat'" class="p-4">
-          <div v-for="(message, index) in chatMessages" :key="index">
-            {{ message }}
+        <div v-if="activeTab === 'chat'" class="p-4" style="padding-bottom: 20px; height: 520px; position: relative;">
+          <div class="chat-messages" style="overflow-y: auto; max-height: calc(100% - 50px); -ms-overflow-style: none; scrollbar-width: none;"> <!-- 채팅 메시지를 담는 부분에 스크롤 적용 -->
+            <div class="flex items-start gap-2.5" v-for="(message, index) in chatMessages" :key="index" :dir="JSON.parse(message).sender === 'me' ? 'rtl' : 'ltr'" style="margin-bottom: 20px;">
+              <img class="w-8 h-8 rounded-full" src="@/assets/default_profile.png" alt="Jese image">
+              <div class="flex flex-col gap-1 w-full max-w-[320px]">
+                <div class="flex items-center space-x-2 rtl:space-x-reverse">
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ JSON.parse(message).sender }}</span>
+                  <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ JSON.parse(message).time[3]}}:{{ JSON.parse(message).time[4]}}</span>
+                </div>
+                <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                  <p class="text-sm font-normal text-gray-900 dark:text-white">{{ JSON.parse(message).message }}</p>
+                </div>
+              </div>
+            </div>
           </div>
-          <input type="text" placeholder="채팅 메시지 입력" @keydown.enter="sendMessage">
+          <input class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+            type="text" v-model="testMessage" placeholder="채팅 메시지 입력" @keydown.enter="sendMessage" style="margin-top: 20px; position: absolute; bottom: 0; left: 0; right: 0;"> <!-- 입력창은 항상 맨 아래에 고정 -->
         </div>
+        <!-- 채팅 끝 -->
+
+
       </div>
     </div>
   </div>
@@ -325,4 +346,6 @@ const sendMessage = () => {
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #555; /* 스크롤바 호버 색상 */
 }
+
 </style>
+
