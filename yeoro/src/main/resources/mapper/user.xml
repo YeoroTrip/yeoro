@@ -19,19 +19,19 @@
 	</insert>
 
 	<update id="updateUser" parameterType="com.yeoro.domain.user.model.dto.UserDto">
-	    UPDATE user
-	    <set>
-	        <if test="password != null">
-	            password=#{password},
-	        </if>
-	        <if test="nickname != null">
-	            nickname=#{nickname},
-	        </if>
-	        <if test="pictureUrl != null">
-	            picture_url=#{pictureUrl, jdbcType=VARCHAR},
-	        </if>
-	    </set>
-	    WHERE user_id=#{userId}
+		UPDATE user
+		<set>
+			<if test="password != null and password != ''">
+				password=#{password},
+			</if>
+			<if test="nickname != null and nickname != ''">
+				nickname=#{nickname},
+			</if>
+			<if test="pictureUrl != null and pictureUrl != ''">
+				picture_url=#{pictureUrl, jdbcType=VARCHAR},
+			</if>
+		</set>
+		WHERE user_id=#{userId}
 	</update>
 
 	<delete id="deleteUser" parameterType="string">

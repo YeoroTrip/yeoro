@@ -4,8 +4,6 @@ import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import PopupComponent from '@/components/PopupComponent.vue'
-import ToastComponent from '@/components/ToastComponent.vue'
-const showToast = ref(false)
 
 const userStore = useUserStore()
 const { userLogin, getUserInfo } = userStore

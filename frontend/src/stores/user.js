@@ -145,7 +145,7 @@ export const useUserStore = defineStore(
             isError.value = false
             console.log(response.data.message)
             // 서버로부터 받은 사용자 정보로 userInfo를 업데이트합니다.
-            userInfo.value = { ...userInfo.value, ...user, profileUrl: response.data.profileUrl }
+            userInfo.value = { ...userInfo.value, ...user, pictureUrl: response.data.pictureUrl }
           }
         },
         (error) => {

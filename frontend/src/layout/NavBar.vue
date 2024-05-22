@@ -3,9 +3,15 @@ import { Disclosure, Menu, MenuButton, MenuItem, MenuItems } from '@headlessui/v
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { storeToRefs } from 'pinia'
+import { computed, ref } from 'vue'
 const userStore = useUserStore()
 const { getUserInfo } = userStore
-const { isLogin, isLoginError } = storeToRefs(userStore)
+const { userInfo, isLogin, isLoginError } = storeToRefs(userStore)
+const defaultProfile = ref('@/assets/img/logo-yeoro.png')
+const PROFILE_PATH = "http://" + window.location.hostname + ':8080/img/upload/profile/'
+const previewImage = computed( () => 
+  userInfo.value.pictureUrl ? PROFILE_PATH + userInfo.value.pictureUrl : defaultProfile.value
+)
 
 // 로그아웃 처리 함수
 function logout() {
@@ -15,7 +21,6 @@ function logout() {
 
 const router = useRouter()
 const profileClick = () => {
-  //console.log(isLogin.value)
   if (!isLogin.value) {
     router.push({ name: 'Login' })
   }
@@ -24,7 +29,6 @@ const profileClick = () => {
 const myPageClick = () => {
   if (isLogin.value) {
     let token = sessionStorage.getItem('accessToken')
-    //console.log("token : ", token)
     getUserInfo(token) // 페이지 넘어가기 전에 정보 미리 받아
     router.push({ name: 'MyPage' })
   }
@@ -33,6 +37,7 @@ const myPageClick = () => {
 const noticeClick = () => {
   router.push({ name: 'notice' })
 }
+
 </script>
 
 <template>
@@ -56,7 +61,7 @@ const noticeClick = () => {
               >
                 <span class="absolute -inset-1.5"></span>
                 <span class="sr-only">Open user menu</span>
-                <img class="h-8 w-8 rounded-full" src="@/assets/img/logo-yeoro.png" alt="" />
+                <img class="h-8 w-8 rounded-full" :src="previewImage" alt="" />
               </MenuButton>
             </div>
 

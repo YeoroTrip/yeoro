@@ -97,30 +97,27 @@ public class UserController {
 														  HttpServletRequest request) {
 	    Map<String, Object> resultMap = new HashMap<>();
 	    HttpStatus status = HttpStatus.ACCEPTED;
-	    
-		if(jwtUtil.checkToken(request.getHeader("Authorization"))) {
-			System.out.println("[내 정보 수정] getUserId : " + userDto.getUserId());
-		    try {
-		    	
-		    	boolean result = userService.updateUser(userDto, file);
-		        if(result) {
-		            resultMap.put("message", "사용자 정보가 성공적으로 수정되었습니다.");
-		            status = HttpStatus.OK;
-		        } else {
-		            resultMap.put("message", "사용자 정보 수정에 실패했습니다.");
-		            status = HttpStatus.BAD_REQUEST;
-		        }
-				
-		    } catch (Exception e) {
-		        log.error("회원 정보 수정 에러 발생: {}", e);
-		        resultMap.put("message", "회원 정보 수정 중 서버 에러가 발생했습니다.");
-		        status = HttpStatus.INTERNAL_SERVER_ERROR;
-		    }
+
+		if (jwtUtil.checkToken(request.getHeader("Authorization"))) {
+			try {
+				boolean result = userService.updateUser(userDto, file);
+				if (result) {
+					resultMap.put("message", "사용자 정보가 성공적으로 수정되었습니다.");
+					status = HttpStatus.OK;
+				} else {
+					resultMap.put("message", "사용자 정보 수정에 실패했습니다.");
+					status = HttpStatus.BAD_REQUEST;
+				}
+			} catch (Exception e) {
+				log.error("회원 정보 수정 에러 발생: {}", e);
+				resultMap.put("message", "회원 정보 수정 중 서버 에러가 발생했습니다.");
+				status = HttpStatus.INTERNAL_SERVER_ERROR;
+			}
 		} else {
 			log.error("사용 불가능 토큰입니다.");
 			status = HttpStatus.UNAUTHORIZED;
 		}
-	    return new ResponseEntity<>(resultMap, status);
+		return new ResponseEntity<>(resultMap, status);
 	}
 
 	@Operation(summary = "로그인", description = "아이디와 패스워드로 로그인을 시도합니다.")
