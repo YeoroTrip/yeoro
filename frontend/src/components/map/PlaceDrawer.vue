@@ -1,19 +1,11 @@
 <script setup>
-import { ref, onMounted, computed, inject } from 'vue'
+import { ref, onMounted, computed, inject, onUnmounted } from 'vue'
 import { initDrawers } from 'flowbite'
+import { Client } from '@stomp/stompjs'
 
+// 변수 정의
 const currentDay = ref('')
 const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-
-onMounted(() => {
-  initDrawers()
-  const today = new Date()
-  currentDay.value = today.getDay()
-
-  //test
-  console.log(selectedPlace.value)
-})
-
 const { selectedPlace, isDrawerOpen } = inject('res')
 const activeTab = ref('info')
 const bPlaceOpeningHour = computed(
@@ -21,14 +13,100 @@ const bPlaceOpeningHour = computed(
     selectedPlace.value.placeDetailDto.placeOpeningHoursDto['sunday'] !=
     '해당 매장에서 정보를 제공하지 않습니다'
 )
+const fullStars = computed(() => Math.floor(selectedPlace.value.placeDetailDto.rating))
+const emptyStars = computed(() => Math.floor(5 - fullStars.value))
+const chatMessages = ref([])
+const isStompClientActive = ref(false)
 
+// STOMP 클라이언트 생성
+const stompClient = new Client({
+  brokerURL: 'ws://localhost:8080/ws',
+  connectHeaders: {
+    // 필요에 따라 추가적인 헤더를 설정할 수 있습니다.
+    // 예: 인증 토큰 등
+  },
+  debug: function (str) {
+    // 디버그 로그를 필요에 따라 출력합니다.
+    console.log(str)
+  },
+})
+
+// STOMP 클라이언트 이벤트 리스너 추가
+stompClient.onConnect = () => {
+  console.log('STOMP 클라이언트 연결됨')
+  isStompClientActive.value = true
+  subscribeToMessages() // 클라이언트가 연결되면 메시지 구독을 시도합니다.
+}
+
+stompClient.onStompError = (frame) => {
+  console.error('STOMP 에러 발생', frame)
+}
+
+stompClient.onWebSocketError = (event) => {
+  console.error('WebSocket 에러 발생', event)
+}
+
+// STOMP 연결 시도
+stompClient.activate()
+
+// 컴포넌트가 언마운트 될 때 STOMP 구독을 취소합니다.
+onUnmounted(() => {
+  if (isStompClientActive.value) {
+    subscription.unsubscribe()
+    stompClient.deactivate()
+  }
+})
+
+// STOMP 메시지 구독
+let subscription = null
+const subscribeToMessages = () => {
+  console.log("isStompClientActive 상태: " + isStompClientActive.value)
+  if (isStompClientActive.value) {
+    subscription = stompClient.subscribe('/exchange/chat.exchange/room.0d612194-0387-4dc0-bf73-ab27f7edf242', (message) => {
+      console.log(message.body)
+      chatMessages.value.push(message.body)
+    })
+  }
+}
+
+// 초기화 로직
+onMounted(() => {
+  initDrawers()
+  const today = new Date()
+  currentDay.value = today.getDay()
+
+  // // STOMP 클라이언트가 활성화되었을 때 메시지 구독을 시도합니다.
+  // console.log("클라이언트 활성화 시작");
+  // subscribeToMessages()
+  // console.log("클라이언트 활성화 끝")
+  // //test
+  // console.log(selectedPlace.value)
+})
+
+// 닫기 버튼 클릭 시 처리 로직
 const closeDrawer = () => {
   isDrawerOpen.value = false
 }
-// 평점
-const fullStars = computed(() => Math.floor(selectedPlace.value.placeDetailDto.rating))
-const emptyStars = computed(() => Math.floor(5 - fullStars.value))
+
+// 채팅 메시지 전송
+const sendMessage = () => {
+  if (isStompClientActive.value) {
+    stompClient.publish({
+      destination: '/pub/chat.message.0d612194-0387-4dc0-bf73-ab27f7edf242',
+      body: JSON.stringify({
+        type: "TALK",
+        roomId: "roomdId",
+        sender: "usernickname",
+        message: "message",
+        time: ""
+      })
+    })
+  }
+}
 </script>
+
+
+
 <template>
   <div
     style="left: 53rem"
@@ -218,7 +296,10 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
 
         <!-- 채팅 -->
         <div v-if="activeTab === 'chat'" class="p-4">
-          <p>여기에 채팅 내용을 넣으세요.</p>
+          <div v-for="(message, index) in chatMessages" :key="index">
+            {{ message }}
+          </div>
+          <input type="text" placeholder="채팅 메시지 입력" @keydown.enter="sendMessage">
         </div>
       </div>
     </div>
