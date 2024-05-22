@@ -1,12 +1,11 @@
 import { ref } from 'vue'
 import { defineStore } from 'pinia'
-import { jwtDecode } from "jwt-decode"
-import { httpStatusCode } from "@/util/http-status"
+import { jwtDecode } from 'jwt-decode'
+import { httpStatusCode } from '@/util/http-status'
 import { useRouter } from 'vue-router'
-import UserAPI from "@/api/user";
+import UserAPI from '@/api/user'
 
 export const useUserStore = defineStore('userStore', () => {
-
   const router = useRouter()
   const isLogin = ref(false)
   const isLoginError = ref(false)
@@ -20,21 +19,21 @@ export const useUserStore = defineStore('userStore', () => {
       (response) => {
         if (response.status === httpStatusCode.CREATE) {
           let { data } = response
-          let accessToken = data["access-token"]
-          let refreshToken = data["refresh-token"]
+          let accessToken = data['access-token']
+          let refreshToken = data['refresh-token']
           isLogin.value = true
           isLoginError.value = false
           isValidToken.value = true
-          sessionStorage.setItem("accessToken", accessToken)
-          sessionStorage.setItem("refreshToken", refreshToken)
+          sessionStorage.setItem('accessToken', accessToken)
+          sessionStorage.setItem('refreshToken', refreshToken)
         }
       },
       (error) => {
-        console.log("로그인 실패!!!!")
+        console.log('로그인 실패!!!!')
         isLogin.value = false
         isLoginError.value = true
         isValidToken.value = false
-        console.error("LogInError : ", error)
+        console.error('LogInError : ', error)
       }
     )
   }
@@ -48,16 +47,16 @@ export const useUserStore = defineStore('userStore', () => {
       (response) => {
         if (response.status === httpStatusCode.OK) {
           userInfo.value = response.data.userInfo
-          console.log(response.data)
+          //console.log(response.data)
           //isLoginError.value = false
         } else {
           //isLoginError.value = true
-          console.log("유저 정보 없음!!!!")
+          console.log('유저 정보 없음!!!!')
         }
       },
       async (error) => {
         console.error(
-          "v[토큰 만료되어 사용 불가능] : ",
+          '[토큰 만료되어 사용 불가능] : ',
           error.response.status,
           error.response.statusText
         )
@@ -74,8 +73,8 @@ export const useUserStore = defineStore('userStore', () => {
       JSON.stringify(userInfo.value),
       (response) => {
         if (response.status === httpStatusCode.CREATE) {
-          let accessToken = response.data["access-token"]
-          sessionStorage.setItem("accessToken", accessToken)
+          let accessToken = response.data['access-token']
+          sessionStorage.setItem('accessToken', accessToken)
           isValidToken.value = true
         }
       },
@@ -87,15 +86,15 @@ export const useUserStore = defineStore('userStore', () => {
             userInfo.value.userid,
             (response) => {
               if (response.status === httpStatusCode.OK) {
-                console.log("리프레시 토큰 제거 성공")
+                console.log('리프레시 토큰 제거 성공')
               } else {
-                console.log("리프레시 토큰 제거 실패")
+                console.log('리프레시 토큰 제거 실패')
               }
-              alert("RefreshToken 기간 만료!!! 다시 로그인해 주세요.")
+              alert('RefreshToken 기간 만료!!! 다시 로그인해 주세요.')
               isLogin.value = false
               userInfo.value = null
               isValidToken.value = false
-              router.push({ name: "Login" })
+              router.push({ name: 'Login' })
             },
             (error) => {
               console.error(error)
@@ -109,7 +108,7 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   const userLogout = async () => {
-    console.log("로그아웃 아이디 : " + userInfo.value.userId)
+    console.log('로그아웃 아이디 : ' + userInfo.value.userId)
     await UserAPI.logout(
       userInfo.value.userId,
       (response) => {
@@ -118,10 +117,10 @@ export const useUserStore = defineStore('userStore', () => {
           userInfo.value = null
           isValidToken.value = false
 
-          sessionStorage.removeItem("accessToken")
-          sessionStorage.removeItem("refreshToken")
+          sessionStorage.removeItem('accessToken')
+          sessionStorage.removeItem('refreshToken')
         } else {
-          console.error("유저 정보 없음!!!!")
+          console.error('유저 정보 없음!!!!')
         }
       },
       (error) => {
@@ -131,55 +130,54 @@ export const useUserStore = defineStore('userStore', () => {
   }
 
   const modifyUser = async (loginUser) => {
-    await UserAPI.modify(loginUser,
+    await UserAPI.modify(
+      loginUser,
       (response) => {
         if (response.status === httpStatusCode.OK) {
           isError.value = false
-          console.log(response.data["message"])
+          console.log(response.data['message'])
         }
       },
       (error) => {
         isError.value = true
-        console.error("modifyError : ", error)
+        console.error('modifyError : ', error)
       }
     )
   }
 
   const removeUser = async (token) => {
-    
     console.log(token)
     console.log(userInfo.value.userId)
 
-  let decodeToken = jwtDecode(token)
-   console.log(decodeToken)
-   await UserAPI.remove(
-    decodeToken.userId,
-    (response) => {
-      if (response.status === httpStatusCode.NOCONTENT) {
-        isError.value = false
-        isLogin.value = false
-        isValidToken.value = false
-        console.log(response.data["message"]);
+    let decodeToken = jwtDecode(token)
+    console.log(decodeToken)
+    await UserAPI.remove(
+      decodeToken.userId,
+      (response) => {
+        if (response.status === httpStatusCode.NOCONTENT) {
+          isError.value = false
+          isLogin.value = false
+          isValidToken.value = false
+          console.log(response.data['message'])
+        }
+      },
+      (error) => {
+        isError.value = true
+        console.error('removeUser : ', error)
       }
-    },
-    (error) => {
-      isError.value = true
-      console.error("removeUser : ", error)
-    }
-  )}
+    )
+  }
 
-    return {     
-      isLogin,
-      isLoginError,
-      userInfo,
-      isValidToken,
-      userLogin,
-      getUserInfo,
-      tokenRegenerate,
-      userLogout,
-      modifyUser, 
-      removeUser,};
-  })
-
-
-  
+  return {
+    isLogin,
+    isLoginError,
+    userInfo,
+    isValidToken,
+    userLogin,
+    getUserInfo,
+    tokenRegenerate,
+    userLogout,
+    modifyUser,
+    removeUser
+  }
+})

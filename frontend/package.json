@@ -11,8 +11,11 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@googlemaps/js-api-loader": "^1.16.6",
     "@headlessui/vue": "^1.7.22",
+    "@heroicons/vue": "^2.1.3",
     "axios": "^1.6.8",
+    "flowbite": "^2.3.0",
     "install": "^0.13.0",
     "jnpm": "^0.0.0",
     "jsonwebtoken": "^9.0.2",
@@ -24,7 +27,6 @@
     "vue": "^3.4.21",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "^4.3.0",
-    "@heroicons/vue": "^2.1.3",
     "vue3-google-map": "^0.20.0"
   },
   "devDependencies": {
