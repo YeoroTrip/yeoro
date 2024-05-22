@@ -77,6 +77,7 @@ onMounted(() => {
   const today = new Date()
   currentDay.value = today.getDay()
 
+
 })
 
 // 닫기 버튼 클릭 시 처리 로직
@@ -304,7 +305,7 @@ onUpdated(() => {
         <div v-if="activeTab === 'chat'" class="p-4" style="padding-bottom: 20px; height: 520px; position: relative;">
           <div class="chat-messages" style="overflow-y: auto; max-height: calc(100% - 50px); -ms-overflow-style: none; scrollbar-width: none;"> <!-- 채팅 메시지를 담는 부분에 스크롤 적용 -->
             <div class="flex items-start gap-2.5" v-for="(message, index) in chatMessages" :key="index" :dir="JSON.parse(message).sender === 'me' ? 'rtl' : 'ltr'" style="margin-bottom: 20px;">
-              <img class="w-8 h-8 rounded-full" src="@/assets/default_profile.png" alt="Jese image">
+              <img class="w-8 h-8 rounded-full" src="@/assets/img/user.png" alt="Jese image">
               <div class="flex flex-col gap-1 w-full max-w-[320px]">
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
                   <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ JSON.parse(message).sender }}</span>
