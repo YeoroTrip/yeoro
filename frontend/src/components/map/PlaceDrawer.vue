@@ -1,5 +1,5 @@
 <script setup>
-import { ref, onMounted, computed, inject, onUnmounted, onUpdated } from 'vue'
+import { ref, onMounted, computed, inject, onUnmounted, onUpdated, watch } from 'vue'
 import { initDrawers } from 'flowbite'
 import { Client } from '@stomp/stompjs'
 
@@ -19,6 +19,7 @@ const chatMessages = ref([])
 const isStompClientActive = ref(false)
 
 const testMessage = ref("")
+const roomId = ref("")
 
 // STOMP 클라이언트 생성
 const stompClient = new Client({
@@ -64,10 +65,15 @@ let subscription = null
 const subscribeToMessages = () => {
   console.log("isStompClientActive 상태: " + isStompClientActive.value)
   if (isStompClientActive.value) {
-    subscription = stompClient.subscribe('/exchange/chat.exchange/room.0d612194-0387-4dc0-bf73-ab27f7edf242', (message) => {
-      console.log(message.body)
-      chatMessages.value.push(message.body)
-    })
+    subscription = stompClient.subscribe('/exchange/chat.exchange/room.'+roomId.value, (message) => {
+          try {
+            const parsedMessage = JSON.parse(message.body);
+            chatMessages.value.push(parsedMessage);
+            console.log('새로운 메시지:', parsedMessage);
+          } catch (e) {
+            console.error('메시지 파싱 도중 오류 발생:', e);
+          }
+        });
   }
 }
 
@@ -77,8 +83,71 @@ onMounted(() => {
   const today = new Date()
   currentDay.value = today.getDay()
 
-
+  fetchChatRoomId()
 })
+
+const fetchChatRoomId = () => {
+  const googleId = selectedPlace.value.googleId;
+  fetch(`http://localhost:8080/chatroom/room?googleId=${googleId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('서버에서 응답을 받지 못했습니다.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      roomId.value = data.data;
+      console.log(googleId,"로인한 roomId 변경 => ", roomId.value)
+
+      fetchChatMessages()
+    })
+    .catch(error => {
+      console.error('채팅방 ID를 가져오는 도중 오류 발생:', error);
+    });
+};
+
+const fetchChatMessages = () => {
+  try {
+    fetch('http://localhost:8080/chatroom/chatList?roomId='+roomId.value)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('서버에서 응답을 받지 못했습니다.')
+        }
+        return response.json()
+      })
+      .then(data => {
+        console.log(roomId.value,"로 채팅 내역 호출")
+        // 채팅 데이터를 chatMessages 배열에 할당
+        data.data.forEach(message => {
+            chatMessages.value.push(message);
+          });
+      })
+      .catch(error => {
+        console.error('채팅 메시지를 가져오는 도중 오류 발생:', error)
+      })
+  } catch (error) {
+    console.error('채팅 메시지를 가져오는 도중 오류 발생:', error)
+  }
+}
+
+watch(selectedPlace, () => {
+  chatMessages.value = []
+
+  if (isStompClientActive.value) {
+    subscription.unsubscribe()
+    stompClient.deactivate()
+  }
+
+  fetchChatRoomId()
+  stompClient.activate()  
+})
+
+
 
 // 닫기 버튼 클릭 시 처리 로직
 const closeDrawer = () => {
@@ -90,10 +159,10 @@ const sendMessage = () => {
     const messageToSend = testMessage.value; // 현재 입력된 메시지 저장
     testMessage.value = ""; // 입력 필드 초기화
     stompClient.publish({
-      destination: '/pub/chat.message.0d612194-0387-4dc0-bf73-ab27f7edf242',
+      destination: '/pub/chat.message.'+roomId.value,
       body: JSON.stringify({
         type: "TALK",
-        roomId: "roomdId",
+        roomId: roomId.value,
         sender: "me",
         message: messageToSend, // 저장된 메시지 전송
         time: ""
@@ -304,15 +373,15 @@ onUpdated(() => {
         <!-- 채팅 -->
         <div v-if="activeTab === 'chat'" class="p-4" style="padding-bottom: 20px; height: 520px; position: relative;">
           <div class="chat-messages" style="overflow-y: auto; max-height: calc(100% - 50px); -ms-overflow-style: none; scrollbar-width: none;"> <!-- 채팅 메시지를 담는 부분에 스크롤 적용 -->
-            <div class="flex items-start gap-2.5" v-for="(message, index) in chatMessages" :key="index" :dir="JSON.parse(message).sender === 'me' ? 'rtl' : 'ltr'" style="margin-bottom: 20px;">
+            <div class="flex items-start gap-2.5" v-for="(message, index) in chatMessages" :key="index" :dir="message.sender === 'me' ? 'rtl' : 'ltr'" style="margin-bottom: 20px;">
               <img class="w-8 h-8 rounded-full" src="@/assets/img/user.png" alt="Jese image">
               <div class="flex flex-col gap-1 w-full max-w-[320px]">
                 <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ JSON.parse(message).sender }}</span>
-                  <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ JSON.parse(message).time[3]}}:{{ JSON.parse(message).time[4]}}</span>
+                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ message.sender }}</span>
+                  <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ message.time[3]}}:{{ message.time[4]}}</span>
                 </div>
                 <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
-                  <p class="text-sm font-normal text-gray-900 dark:text-white">{{ JSON.parse(message).message }}</p>
+                  <p class="text-sm font-normal text-gray-900 dark:text-white">{{ message.message }}</p>
                 </div>
               </div>
             </div>
