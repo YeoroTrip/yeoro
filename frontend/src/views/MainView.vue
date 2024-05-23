@@ -15,8 +15,6 @@ import SearchBar from '@/components/SearchBar.vue'
     <SearchBar />
   </div>
   <main>
-<AI></AI>
-
   </main>
 </template>
 

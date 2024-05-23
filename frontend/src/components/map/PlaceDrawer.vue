@@ -39,7 +39,6 @@ async function summarizeText() {
     });
     
     console.log('chatGPT 결과: ', response.choices[0].message.content);
-    console.log("문의 내역:", chatContent);
   } catch (error) {
     console.log('chatGPT: 🚨 에러가 발생했습니다.', error);
   }
@@ -116,7 +115,7 @@ onUnmounted(() => {
 // STOMP 메시지 구독
 let subscription = null
 const subscribeToMessages = () => {
-  console.log("isStompClientActive 상태: " + isStompClientActive.value)
+  // console.log("isStompClientActive 상태: " + isStompClientActive.value)
   if (isStompClientActive.value) {
     subscription = stompClient.subscribe('/exchange/chat.exchange/room.'+roomId.value, (message) => {
           try {
@@ -470,7 +469,7 @@ function getCurrentTimeArray() {
                   </template>
                 </div>
                 <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-xl dark:bg-gray-700"
-                    :class="message.sender === 'me' ? 'self-end bg-blue-100' : 'self-start bg-gray-100'">
+                    :class="message.sender === 'me' ? 'self-end bg-blue-200' : 'self-start bg-gray-100'">
                   <p class="text-sm font-normal text-gray-900 dark:text-white">{{ message.message }}</p>
                 </div>
               </div>
