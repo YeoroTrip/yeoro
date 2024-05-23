@@ -28,20 +28,20 @@
 import { ref } from 'vue'
 
 const links = ref([
-  { text: '카페 그레도', url: '#' },
-  { text: '몽떼', url: '#' },
-  { text: '엉가', url: '#' },
-  { text: '해성막창', url: '#' },
-  { text: '아이엠 베이글', url: '#' },
-  { text: '이나경 송탄 부대찌개', url: '#' },
-  { text: '역삼정', url: '#' },
-  { text: '요신의 하루', url: '#' },
-  { text: '런던 베이글 도넛', url: '#' },
-  { text: '쉐이크쉑', url: '#' },
-  { text: '오레노 라멘', url: '#' },
-  { text: '멘무샤 시청직영점', url: '#' },
-  { text: '카페 스카이라운지24', url: '#' },
-  { text: '파이브가이브', url: '#' }
+  { text: '카페 그레도', url: '/maps?keyword=카페 그레도' },
+  { text: '엉가', url: '/maps?keyword=엉가' },
+  { text: '몽떼', url: '/maps?keyword=몽떼' },
+  { text: '해성막창', url: '/maps?keyword=해성막창' },
+  { text: '아이엠 베이글', url: '/maps?keyword=아이엠 베이글' },
+  { text: '이나경 송탄 부대찌개', url: '/maps?keyword=이나경 송탄 부대찌개' },
+  { text: '역삼정', url: '/maps?keyword=역삼정' },
+  { text: '요신의 하루', url: '/maps?keyword=요신의 하루' },
+  { text: '런던 베이글 도넛', url: '/maps?keyword=런던 베이글 도넛' },
+  { text: '쉐이크쉑', url: '/maps?keyword=쉐이크쉑' },
+  { text: '오레노 라멘', url: '/maps?keyword=오레노 라멘' },
+  { text: '멘무샤 시청직영점', url: '/maps?keyword=멘무샤 시청직영점' },
+  { text: '카페 스카이라운지24', url: '/maps?keyword=카페 스카이라운지24' },
+  { text: '파이브가이즈', url: '/maps?keyword=파이브가이즈' }
 ])
 </script>
 
