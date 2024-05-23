@@ -469,7 +469,7 @@ function getCurrentTimeArray() {
                   </template>
                 </div>
                 <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-xl dark:bg-gray-700"
-                    :class="message.sender === 'me' ? 'self-end bg-blue-200' : 'self-start bg-gray-100'">
+                    :class="message.sender === 'me' ? 'self-end bg-blue-100' : 'self-start bg-gray-100'">
                   <p class="text-sm font-normal text-gray-900 dark:text-white">{{ message.message }}</p>
                 </div>
               </div>

@@ -20,11 +20,11 @@ const { getUserInfo } = userStore
 const { userInfo, isLogin, isLoginError } = storeToRefs(userStore)
 const router = useRouter()
 
-const defaultProfile = ref('@/assets/img/logo-yeoro.png')
-const PROFILE_PATH = 'http://' + window.location.hostname + ':8080/img/upload/profile/'
+const defaultProfile = ref('user.png')
+const PROFILE_PATH = 'http://' + window.location.hostname + ':8080/img/'
 const showToastMessage = ref(false)
 const previewImage = computed(() =>
-  userInfo.value ? PROFILE_PATH + userInfo.value.pictureUrl : defaultProfile.value
+  userInfo.value ? PROFILE_PATH + userInfo.value.pictureUrl : PROFILE_PATH + defaultProfile.value
 )
 
 // 로그아웃 처리 함수
@@ -36,6 +36,7 @@ function logout() {
   })
   isLogin.value = false
   router.push(`/`)
+  userInfo.value = null
 }
 
 const profileClick = () => {
@@ -76,13 +77,23 @@ const noticeClick = () => {
           <Menu as="div" class="relative ml-3">
             <div>
               <MenuButton
-                @click="profileClick"
-                class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-gray-800"
-              >
-                <span class="absolute -inset-1.5"></span>
-                <span class="sr-only">Open user menu</span>
-                <img class="h-8 w-8 rounded-full" :src="previewImage" alt="" />
-              </MenuButton>
+  @click="profileClick"
+  class="relative flex rounded-full bg-gray-800 text-sm focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 border border-gray-400 shadow-md"
+>
+  <span class="absolute -inset-1.5"></span>
+  <span class="sr-only">Open user menu</span>
+  <template v-if="userInfo && userInfo.pictureUrl">
+    <img class="h-8 w-8 rounded-full" :src="PROFILE_PATH + userInfo.pictureUrl" alt="" />
+  </template>
+  <template v-else>
+    <div class="relative w-10 h-10 overflow-hidden bg-gray-100 rounded-full dark:bg-gray-600">
+      <svg class="absolute w-12 h-12 text-gray-400 -left-1" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+        <path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path>
+      </svg>
+    </div>
+  </template>
+</MenuButton>
+
             </div>
 
             <transition
