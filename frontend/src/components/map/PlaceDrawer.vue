@@ -1,16 +1,11 @@
 <script setup>
-import { ref, onMounted, computed, inject, watch } from 'vue'
+import { ref, onMounted, computed, inject, onUnmounted, onUpdated, watch } from 'vue'
 import { initDrawers } from 'flowbite'
+import { Client } from '@stomp/stompjs'
 
+// 변수 정의
 const currentDay = ref('')
 const daysOfWeek = ['sunday', 'monday', 'tuesday', 'wednesday', 'thursday', 'friday', 'saturday']
-
-onMounted(() => {
-  initDrawers()
-  const today = new Date()
-  currentDay.value = today.getDay()
-})
-
 const { selectedPlace, isDrawerOpen } = inject('res')
 const activeTab = ref('info')
 const bPlaceOpeningHour = computed(
@@ -18,20 +13,185 @@ const bPlaceOpeningHour = computed(
     selectedPlace.value.placeDetailDto.placeOpeningHoursDto['sunday'] !=
     '해당 매장에서 정보를 제공하지 않습니다'
 )
+const fullStars = computed(() => Math.floor(selectedPlace.value.placeDetailDto.rating))
+const emptyStars = computed(() => Math.floor(5 - fullStars.value))
+const chatMessages = ref([])
+const isStompClientActive = ref(false)
 
+const testMessage = ref("")
+const roomId = ref("")
+
+const formatTime = (timeArray) => {
+  let hours = timeArray[3];
+  const minutes = timeArray[4];
+  const ampm = hours >= 12 ? '오후' : '오전';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // 0을 12로 변환
+  const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+  return `${ampm} ${hours}:${formattedMinutes}`;
+}
+
+// STOMP 클라이언트 생성
+const stompClient = new Client({
+  brokerURL: 'ws://localhost:8080/ws',
+  connectHeaders: {
+    // 필요에 따라 추가적인 헤더를 설정할 수 있습니다.
+    // 예: 인증 토큰 등
+  },
+  debug: function (str) {
+    // 디버그 로그를 필요에 따라 출력합니다.
+    console.log(str)
+  },
+})
+
+// STOMP 클라이언트 이벤트 리스너 추가
+stompClient.onConnect = () => {
+  console.log('STOMP 클라이언트 연결됨')
+  isStompClientActive.value = true
+  subscribeToMessages() // 클라이언트가 연결되면 메시지 구독을 시도합니다.
+}
+
+stompClient.onStompError = (frame) => {
+  console.error('STOMP 에러 발생', frame)
+}
+
+stompClient.onWebSocketError = (event) => {
+  console.error('WebSocket 에러 발생', event)
+}
+
+// STOMP 연결 시도
+stompClient.activate()
+
+// 컴포넌트가 언마운트 될 때 STOMP 구독을 취소합니다.
+onUnmounted(() => {
+  if (isStompClientActive.value) {
+    subscription.unsubscribe()
+    stompClient.deactivate()
+  }
+})
+
+// STOMP 메시지 구독
+let subscription = null
+const subscribeToMessages = () => {
+  console.log("isStompClientActive 상태: " + isStompClientActive.value)
+  if (isStompClientActive.value) {
+    subscription = stompClient.subscribe('/exchange/chat.exchange/room.'+roomId.value, (message) => {
+          try {
+            const parsedMessage = JSON.parse(message.body);
+            chatMessages.value.push(parsedMessage);
+            console.log('새로운 메시지:', parsedMessage);
+          } catch (e) {
+            console.error('메시지 파싱 도중 오류 발생:', e);
+          }
+        });
+  }
+}
+
+// 초기화 로직
+onMounted(() => {
+  initDrawers()
+  const today = new Date()
+  currentDay.value = today.getDay()
+
+  fetchChatRoomId()
+})
+
+const fetchChatRoomId = () => {
+  const googleId = selectedPlace.value.googleId;
+  fetch(`http://localhost:8080/chatroom/room?googleId=${googleId}`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+    },
+  })
+    .then(response => {
+      if (!response.ok) {
+        throw new Error('서버에서 응답을 받지 못했습니다.');
+      }
+      return response.json();
+    })
+    .then(data => {
+      roomId.value = data.data;
+      console.log(googleId,"로인한 roomId 변경 => ", roomId.value)
+
+      fetchChatMessages()
+    })
+    .catch(error => {
+      console.error('채팅방 ID를 가져오는 도중 오류 발생:', error);
+    });
+};
+
+const fetchChatMessages = () => {
+  try {
+    fetch('http://localhost:8080/chatroom/chatList?roomId='+roomId.value)
+      .then(response => {
+        if (!response.ok) {
+          throw new Error('서버에서 응답을 받지 못했습니다.')
+        }
+        return response.json()
+      })
+      .then(data => {
+        console.log(roomId.value,"로 채팅 내역 호출")
+        // 채팅 데이터를 chatMessages 배열에 할당
+        data.data.forEach(message => {
+            chatMessages.value.push(message);
+          });
+      })
+      .catch(error => {
+        console.error('채팅 메시지를 가져오는 도중 오류 발생:', error)
+      })
+  } catch (error) {
+    console.error('채팅 메시지를 가져오는 도중 오류 발생:', error)
+  }
+}
+
+watch(selectedPlace, () => {
+  chatMessages.value = []
+
+  if (isStompClientActive.value) {
+    subscription.unsubscribe()
+    stompClient.deactivate()
+  }
+
+  fetchChatRoomId()
+  stompClient.activate()  
+})
+
+
+
+// 닫기 버튼 클릭 시 처리 로직
 const closeDrawer = () => {
   isDrawerOpen.value = false
 }
 
-watch(() => {
-  console.log("ddd", selectedPlace.value.googleId)
-})
+const sendMessage = () => {
+  if (isStompClientActive.value) {
+    const messageToSend = testMessage.value; // 현재 입력된 메시지 저장
+    testMessage.value = ""; // 입력 필드 초기화
+    stompClient.publish({
+      destination: '/pub/chat.message.'+roomId.value,
+      body: JSON.stringify({
+        type: "TALK",
+        roomId: roomId.value,
+        sender: "me",
+        message: messageToSend, // 저장된 메시지 전송
+        time: ""
+      })
+    })
+  }
+}
 
-
-// 평점
-const fullStars = computed(() => Math.floor(selectedPlace.value.placeDetailDto.rating))
-const emptyStars = computed(() => Math.floor(5 - fullStars.value))
+// DOM 업데이트 후에 스크롤을 최하단으로 이동
+onUpdated(() => {
+      const chatMessagesElement = document.querySelector('.chat-messages');
+      if (chatMessagesElement) {
+        chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+      }
+    });
 </script>
+
+
+
 <template>
   <div
     style="left: 53rem"
@@ -68,16 +228,17 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
     <!-- <div class="min-h-screen flex flex-col items-center bg-gray-100"> -->
     <div class="flex flex-col bg-white">
       <div
-        v-if="selectedPlace.placeDetailDto.photo"
-        class="w-full overflow-hidden aspect-w-3 aspect-h-2"
-      >
-        <img
-          :src="selectedPlace?.placeDetailDto?.photo"
-          alt="placeholder"
-          class="w-full h-auto object-cover"
-          draggable="false"
-        />
-      </div>
+  v-if="selectedPlace.placeDetailDto.photo"
+  class="w-full h-60 overflow-hidden"
+>
+  <img
+    :src="selectedPlace?.placeDetailDto?.photo"
+    alt="placeholder"
+    class="w-full h-full object-cover"
+    draggable="false"
+  />
+</div>
+
       <div class="p-4 bg-white dark:bg-gray-800">
         <h2 class="text-lg font-extrabold mb-2 dark:text-white">
           {{ selectedPlace.placeDetailDto.name }}
@@ -117,7 +278,7 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
         </div>
 
         <!-- 탭 -->
-        <div class="border-t border-gray-300">
+        <div class="border-t border-gray-300 tab-buttons">
           <div class="flex justify-around mt-2">
             <button
               @click="activeTab = 'info'"
@@ -220,9 +381,40 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
         </div>
 
         <!-- 채팅 -->
-        <div v-if="activeTab === 'chat'" class="p-4">
-          {{ selectedPlace.googleId }}
+        <div v-if="activeTab === 'chat'" class="p-4" style="padding-bottom: 20px; height: 520px; position: relative;">
+          <div class="chat-messages" style="overflow-y: auto; max-height: calc(100% - 50px); -ms-overflow-style: none; scrollbar-width: none;">
+            <!-- 채팅 메시지를 담는 부분에 스크롤 적용 -->
+            <div class="flex items-start gap-2.5" v-for="(message, index) in chatMessages" :key="index" style="margin-bottom: 20px;" :class="{'flex-row-reverse': message.sender === 'me'}">
+              <img class="w-8 h-8 rounded-full" src="@/assets/img/user.png" alt="Jese image">
+              <div class="flex flex-col gap-1 w-full max-w-[320px]" :class="message.sender === 'me' ? 'items-end' : 'items-start'">
+                <div class="flex items-center space-x-2">
+                  <template v-if="message.sender === 'me'">
+                    <span class="text-sm font-normal text-gray-500 dark:text-gray-400" style="font-size: 0.65rem;">{{ formatTime(message.time) }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ message.sender }}</span>
+                  </template>
+                  <template v-else>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ message.sender }}</span>
+                    <span class="text-sm font-normal text-gray-500 dark:text-gray-400" style="font-size: 0.65rem;">{{ formatTime(message.time) }}</span>
+                  </template>
+                </div>
+                <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-xl dark:bg-gray-700"
+                    :class="message.sender === 'me' ? 'self-end bg-blue-100' : 'self-start bg-gray-100'">
+                  <p class="text-sm font-normal text-gray-900 dark:text-white">{{ message.message }}</p>
+                </div>
+              </div>
+            </div>
+          </div>
+          <input class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
+                type="text" v-model="testMessage" placeholder="채팅 메시지 입력" @keydown.enter="sendMessage" style="margin-top: 20px; position: absolute; bottom: 0; left: 0; right: 0;">
+          <!-- 입력창은 항상 맨 아래에 고정 -->
         </div>
+        <!-- 채팅 끝 -->
+
+
+
+
+
+
       </div>
     </div>
   </div>
@@ -247,4 +439,6 @@ const emptyStars = computed(() => Math.floor(5 - fullStars.value))
 .custom-scrollbar::-webkit-scrollbar-thumb:hover {
   background: #555; /* 스크롤바 호버 색상 */
 }
+
 </style>
+

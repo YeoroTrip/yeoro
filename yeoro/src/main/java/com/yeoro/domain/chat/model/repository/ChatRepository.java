@@ -7,5 +7,5 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 public interface ChatRepository extends MongoRepository<Chat, String> {
-    List<Chat> findTop50ByRoomIdAndTimeLessThanOrderByTimeDesc(String roomId, LocalDateTime time);
+    List<Chat> findTop50ByRoomIdAndTimeLessThanOrderByTimeAsc(String roomId, LocalDateTime time);
 }
