@@ -14,13 +14,13 @@ const joinSubmit = () => {
   userAPI.register(
     user,
 
-    () => {
-      console.log(`회원 가입에 성공했습니다. 가입한 정보로 로그인해주세요!`)
+    (response) => {
+      console.log(`회원 가입에 성공했습니다. 가입한 정보로 로그인해주세요!`, response.message)
       showPopup.value = true
     },
 
-    () => {
-      console.log('회원 가입에 실패했습니다.')
+    (error) => {
+      console.log('회원 가입에 실패했습니다.', error.message)
     }
   )
   reset()

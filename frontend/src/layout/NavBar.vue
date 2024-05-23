@@ -4,6 +4,14 @@ import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import { useNoticeStore } from '@/stores/notice'
 import { storeToRefs } from 'pinia'
+
+import { useToastStore } from '@/stores/toast'
+import ToastMessage from '@/components/ToastMessage.vue'
+import { useToast } from 'vue-toast-notification'
+
+const toastStore = useToastStore()
+const toast = useToast()
+
 import { computed, ref } from 'vue'
 const userStore = useUserStore()
 const noticeStore = useNoticeStore()
@@ -12,23 +20,30 @@ const { getUserInfo } = userStore
 const { userInfo, isLogin, isLoginError } = storeToRefs(userStore)
 const router = useRouter()
 
-
 const defaultProfile = ref('@/assets/img/logo-yeoro.png')
-const PROFILE_PATH = "http://" + window.location.hostname + ':8080/img/upload/profile/'
-const previewImage = computed( () => 
+const PROFILE_PATH = 'http://' + window.location.hostname + ':8080/img/upload/profile/'
+const showToastMessage = ref(false)
+const previewImage = computed(() =>
   userInfo.value ? PROFILE_PATH + userInfo.value.pictureUrl : defaultProfile.value
 )
 
 // 로그아웃 처리 함수
 function logout() {
+  toast.open({
+    message: '로그아웃 되셨습니다 🕊',
+    type: 'success',
+    duration: 5000
+  })
   isLogin.value = false
   router.push(`/`)
 }
 
 const profileClick = () => {
+  showToastMessage.value = true
   if (!isLogin.value) {
     router.push({ name: 'Login' })
   }
+  showToastMessage.value = false
 }
 
 const myPageClick = () => {
@@ -39,15 +54,16 @@ const myPageClick = () => {
   }
 }
 const noticeClick = () => {
-  
   router.push({ name: 'notice' })
 }
 </script>
 
 <template>
+  <ToastMessage />
+
   <Disclosure as="nav" class="bg-D5E9B3">
     <div class="mx-auto max-w-8xl px-2 sm:px-6 lg:px-8">
-      <div class="relative flex h-24 items-center justify-between">
+      <div class="relative flex h-20 items-center justify-between">
         <div class="flex flex-1 items-center justify-center sm:items-stretch sm:justify-start">
           <a class="flex flex-shrink-0 items-center" href="/">
             <img class="h-12 w-auto" src="@/assets/img/logo-yeoro.png" alt="logo" />
@@ -90,7 +106,7 @@ const noticeClick = () => {
                     >내 정보</a
                   >
                 </MenuItem>
-                <MenuItem v-if="isLogin" v-slot="{ active }">
+                <MenuItem v-slot="{ active }">
                   <a
                     href="#"
                     @click="logout"

@@ -7,8 +7,12 @@ import defaultImage from '@/assets/default_profile.png'
 const userStore = useUserStore()
 const { modifyUser, removeUser, getUserInfo } = userStore
 const { userInfo } = storeToRefs(userStore)
+//toast
+import { useToast } from 'vue-toast-notification'
+const toast = useToast()
+
 //
-const PROFILE_PATH = "http://" + window.location.hostname + ':8080/img/upload/profile/'
+const PROFILE_PATH = 'http://' + window.location.hostname + ':8080/img/upload/profile/'
 const previewImage = ref(PROFILE_PATH + userInfo.value.pictureUrl)
 const selectedFile = ref(null)
 
@@ -58,7 +62,11 @@ const inputUser = ref({ nickname: '', password: '', pictureUrl: '' }) // 사용�
 
 const handleSubmit = async () => {
   if (!isMatch.value) {
-    alert('비밀번호가 일치하지 않습니다.')
+    toast.open({
+      message: '비밀번호가 일치하지 않습니다 ',
+      type: 'error',
+      duration: 5000
+    })
     return
   }
 
@@ -71,6 +79,12 @@ const handleSubmit = async () => {
   let token = sessionStorage.getItem('accessToken')
   await getUserInfo(token)
   previewImage.value = userInfo.value.pictureUrl
+
+  toast.open({
+    message: '내 정보가 성공적으로 수정되었습니다 ! 🎈',
+    type: 'success',
+    duration: 5000
+  })
 }
 
 // unregister
@@ -84,7 +98,6 @@ const unregister = () => {
   let token = sessionStorage.getItem('accessToken')
   removeUser(token)
 }
-
 </script>
 <template>
   <PopupComponent
@@ -186,19 +199,21 @@ const unregister = () => {
                 <label for="message" class="block mb-2 text-sm font-medium text-gray-900 dark:text-gray-400">Your message</label>
                 <textarea id="message" rows="6" class="block p-2.5 w-full text-sm text-gray-900 bg-gray-50 rounded-lg shadow-sm border border-gray-300 focus:ring-primary-500 focus:border-primary-500 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500" placeholder="Leave a comment..."></textarea>
             </div> -->
-        <button
-          @click.prevent="handleSubmit"
-          type="submit"
-          class="py-3 px-5 text-sm font-medium text-center text-white rounded-lg bg-primary-700 sm:w-fit hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
-        >
-          수정하기
-        </button>
-        <button
-          type="reset"
-          class="py-3 px-5 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 sm:w-auto hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
-        >
-          취소
-        </button>
+        <div class="flex items-center space-x-4">
+          <button
+            @click.prevent="handleSubmit"
+            type="submit"
+            class="py-3 px-5 text-sm font-medium text-center text-white rounded-lg bg-primary-700 sm:w-fit hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+          >
+            수정하기
+          </button>
+          <button
+            type="reset"
+            class="py-3 px-5 text-sm font-medium text-gray-500 bg-white rounded-lg border border-gray-200 sm:w-auto hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+          >
+            취소
+          </button>
+        </div>
 
         <!-- 탈퇴하기 -->
         <p

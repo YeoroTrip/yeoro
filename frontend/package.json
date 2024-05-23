@@ -25,11 +25,13 @@
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "quill": "^2.0.2",
+    "run": "^1.5.0",
     "stomp": "^0.1.1",
     "tailwind": "^4.0.0",
     "vue": "^3.4.21",
     "vue-quill-editor": "^3.0.6",
     "vue-router": "^4.3.0",
+    "vue-toast-notification": "^3.1.2",
     "vue3-google-map": "^0.20.0"
   },
   "devDependencies": {

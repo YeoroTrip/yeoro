@@ -9,6 +9,7 @@ const { noticeList, fetchNotice } = useNoticeStore()
 // 컴포넌트가 마운트될 때 fetchNotice를 호출합니다.
 onMounted(async () => {
   await fetchNotice()
+  console.log(noticeList.value)
 })
 
 const handleNoticeView = (noticeId) => {
@@ -22,20 +23,7 @@ const handleWriteClick = () => {
 </script>
 
 <template>
-  <div class="relative mx-10 my-10 overflow-x-auto sm:rounded-lg">
-    <div class="flex flex-col items-center justify-center p-6 space-y-4 md:space-y-6 sm:p-8">
-      <h1
-        class="text-xl font-bold leading-tight tracking-tight text-gray-900 md:text-2xl dark:text-white"
-      >
-        공지사항
-      </h1>
-      <p
-        class="mb-8 lg:mb-16 font-light text-center text-gray-500 dark:text-gray-400 sm:text-normal"
-      >
-        안내드릴 사항을 게시판에 적어두었습니다.
-      </p>
-    </div>
-
+  <div class="mx-auto max-w-8xl px-2 sm:px-6 lg:px-8">
     <div class="relative my-10 overflow-x-auto shadow-md sm:rounded-lg">
       <table class="w-full text-sm text-left text-gray-500 dark:text-gray-400 table-fixed">
         <thead class="bg-gray-50 dark:bg-gray-700">
@@ -74,11 +62,11 @@ const handleWriteClick = () => {
       </table>
     </div>
 
-    <div class="flex items-center space-x-4">
+    <div class="flex justify-end items-center space-x-4 text-sm">
       <button
         @click.prevent="handleWriteClick"
         type="button"
-        class="text-white inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+        class="text-white font-light inline-flex items-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-full px-5 py-2 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
       >
         <svg
           aria-hidden="true"

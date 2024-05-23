@@ -26,7 +26,7 @@ const cancleAction = () => {
 </script>
 
 <template>
-  <div class="p-6 bg-white dark:bg-gray-800 shadow-lg rounded-lg">
+  <div class="mx-auto max-w-8xl px-2 sm:px-6 lg:px-8">
     <div class="mb-4">
       <input
         v-model="notice.title"

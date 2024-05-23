@@ -6,6 +6,7 @@ const props = defineProps({
 })
 
 const handleCloseBtn = () => {
+  router.go(-1)
   emit('close')
 }
 

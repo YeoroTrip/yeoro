@@ -1,5 +1,7 @@
 <script setup>
 import NavBar from '@/layout/NavBar.vue'
+import Footer from '@/layout/Footer.vue'
+
 import SearchBar from '@/components/SearchBar.vue'
 </script>
 
@@ -7,25 +9,18 @@ import SearchBar from '@/components/SearchBar.vue'
   <header>
     <NavBar />
   </header>
-  <div class="text-center mb-8">
-    <!-- 부모 요소에 text-center 클래스 추가 -->
-    <img src="@/assets/img/logo-big-yeoro.png" alt="" class="mx-auto mb-8" />
-    <!-- 이미지 감싸는 div에 mx-auto 클래스 추가 -->
-    <h1>여행을 떠나고 싶으신가요? 우리 사이트좀 이용해주세요!!</h1>
-    <SearchBar />
-  </div>
-  <main>
+  <main class="flex flex-col justify-center items-center h-[calc(100vh-5rem-2.5rem)] text-center">
+    <div class="mb-32 flex flex-col justify-center">
+      <img src="@/assets/img/logo-big-yeoro.png" alt="" class="mb-8 w-2/3 mx-auto" />
+      <h1 class="text-2xl font-light mb-8 text-gray-800">
+        실시간으로 나누는 생생한 리뷰, 여로에서 만나요!
+      </h1>
+      <SearchBar />
+    </div>
   </main>
+  <Footer />
 </template>
 
 <style scoped>
-img {
-  width: 500px;
-}
-
-h1 {
-  font-size: 2rem; /* 텍스트 크기 조정 */
-  font-weight: lighter;
-  color: #333; /* 텍스트 색상 설정 */
-}
+/* 여기에 Tailwind CSS를 사용하는 스타일을 추가할 필요는 없습니다 */
 </style>
