@@ -28,7 +28,8 @@
             chat.id AS roomId,
             chat.place_id AS placeId
         FROM chat_room chat
-        JOIN place ON place.google_id = #{googleId}
+        JOIN place ON place.id = chat.place_id
+        WHERE place.google_id = #{googleId}
     </select>
 
     <!-- 채팅방 조회: 채팅방 아이디(UUID)로 조회 -->
