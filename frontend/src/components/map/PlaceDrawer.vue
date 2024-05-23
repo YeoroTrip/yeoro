@@ -21,6 +21,16 @@ const isStompClientActive = ref(false)
 const testMessage = ref("")
 const roomId = ref("")
 
+const formatTime = (timeArray) => {
+  let hours = timeArray[3];
+  const minutes = timeArray[4];
+  const ampm = hours >= 12 ? '오후' : '오전';
+  hours = hours % 12;
+  hours = hours ? hours : 12; // 0을 12로 변환
+  const formattedMinutes = minutes < 10 ? '0' + minutes : minutes;
+  return `${ampm} ${hours}:${formattedMinutes}`;
+}
+
 // STOMP 클라이언트 생성
 const stompClient = new Client({
   brokerURL: 'ws://localhost:8080/ws',
@@ -372,24 +382,37 @@ onUpdated(() => {
 
         <!-- 채팅 -->
         <div v-if="activeTab === 'chat'" class="p-4" style="padding-bottom: 20px; height: 520px; position: relative;">
-          <div class="chat-messages" style="overflow-y: auto; max-height: calc(100% - 50px); -ms-overflow-style: none; scrollbar-width: none;"> <!-- 채팅 메시지를 담는 부분에 스크롤 적용 -->
-            <div class="flex items-start gap-2.5" v-for="(message, index) in chatMessages" :key="index" :dir="message.sender === 'me' ? 'rtl' : 'ltr'" style="margin-bottom: 20px;">
+          <div class="chat-messages" style="overflow-y: auto; max-height: calc(100% - 50px); -ms-overflow-style: none; scrollbar-width: none;">
+            <!-- 채팅 메시지를 담는 부분에 스크롤 적용 -->
+            <div class="flex items-start gap-2.5" v-for="(message, index) in chatMessages" :key="index" style="margin-bottom: 20px;" :class="{'flex-row-reverse': message.sender === 'me'}">
               <img class="w-8 h-8 rounded-full" src="@/assets/img/user.png" alt="Jese image">
-              <div class="flex flex-col gap-1 w-full max-w-[320px]">
-                <div class="flex items-center space-x-2 rtl:space-x-reverse">
-                  <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ message.sender }}</span>
-                  <span class="text-sm font-normal text-gray-500 dark:text-gray-400">{{ message.time[3]}}:{{ message.time[4]}}</span>
+              <div class="flex flex-col gap-1 w-full max-w-[320px]" :class="message.sender === 'me' ? 'items-end' : 'items-start'">
+                <div class="flex items-center space-x-2">
+                  <template v-if="message.sender === 'me'">
+                    <span class="text-sm font-normal text-gray-500 dark:text-gray-400" style="font-size: 0.65rem;">{{ formatTime(message.time) }}</span>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ message.sender }}</span>
+                  </template>
+                  <template v-else>
+                    <span class="text-sm font-semibold text-gray-900 dark:text-white">{{ message.sender }}</span>
+                    <span class="text-sm font-normal text-gray-500 dark:text-gray-400" style="font-size: 0.65rem;">{{ formatTime(message.time) }}</span>
+                  </template>
                 </div>
-                <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-e-xl rounded-es-xl dark:bg-gray-700">
+                <div class="flex flex-col leading-1.5 p-4 border-gray-200 bg-gray-100 rounded-xl dark:bg-gray-700"
+                    :class="message.sender === 'me' ? 'self-end bg-blue-100' : 'self-start bg-gray-100'">
                   <p class="text-sm font-normal text-gray-900 dark:text-white">{{ message.message }}</p>
                 </div>
               </div>
             </div>
           </div>
           <input class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-            type="text" v-model="testMessage" placeholder="채팅 메시지 입력" @keydown.enter="sendMessage" style="margin-top: 20px; position: absolute; bottom: 0; left: 0; right: 0;"> <!-- 입력창은 항상 맨 아래에 고정 -->
+                type="text" v-model="testMessage" placeholder="채팅 메시지 입력" @keydown.enter="sendMessage" style="margin-top: 20px; position: absolute; bottom: 0; left: 0; right: 0;">
+          <!-- 입력창은 항상 맨 아래에 고정 -->
         </div>
         <!-- 채팅 끝 -->
+
+
+
+
 
 
       </div>
