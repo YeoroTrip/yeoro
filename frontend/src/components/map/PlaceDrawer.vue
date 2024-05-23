@@ -2,6 +2,49 @@
 import { ref, onMounted, computed, inject, onUnmounted, onUpdated, watch } from 'vue'
 import { initDrawers } from 'flowbite'
 import { Client } from '@stomp/stompjs'
+import OpenAI from "openai";
+const apiKey = import.meta.env.VITE_OPENAI_API_KEY;
+
+// chat gpt api
+const openai = new OpenAI({
+    apiKey: apiKey,
+    dangerouslyAllowBrowser: true
+});
+
+async function summarizeText() {
+  try {
+    // 각 메시지 객체를 문자열로 변환하여 합칩니다.
+    const chatContent = "현재 여행지의 정보는 아래와 같습니다.\n" + JSON.stringify(selectedPlace.value.placeDetailDto) +
+      "/n아래의 내용은 여행지(음식점, 관광지 등)에 대한 유저들의 채팅 정보입니다. 아래 내역을 활용해 마지막 질의에 응답해주세요.\n" +
+      chatMessages.value.map(msg => `${msg.sender}: ${msg.message}`).join('\n') + `\n질의: ${testMessage.value}`;
+
+    
+    
+    const response = await openai.chat.completions.create({
+      messages: [
+        {
+          role: 'user',
+          content: chatContent,
+        },
+      ],
+      model: 'gpt-3.5-turbo',
+    });
+    
+    chatMessages.value.push({
+      type: "TALK",
+      roomId: roomId.value,
+      sender: "Chat GPT",
+      message: response.choices[0].message.content, // chat gpt의 답변
+      time: getCurrentTimeArray()
+    });
+    
+    console.log('chatGPT 결과: ', response.choices[0].message.content);
+    console.log("문의 내역:", chatContent);
+  } catch (error) {
+    console.log('chatGPT: 🚨 에러가 발생했습니다.', error);
+  }
+}
+
 
 // 변수 정의
 const currentDay = ref('')
@@ -165,9 +208,21 @@ const closeDrawer = () => {
 }
 
 const sendMessage = () => {
-  if (isStompClientActive.value) {
+  if(testMessage.value.startsWith("/gpt ")){
+    summarizeText()
+
+    chatMessages.value.push({
+      type: "TALK",
+      roomId: roomId.value,
+      sender: "me",
+      message:  testMessage.value, // 저장된 메시지 전송
+      time: getCurrentTimeArray()
+    })
+
+    testMessage.value = ""; // 입력 필드 초기화  
+  }else if (isStompClientActive.value) {
     const messageToSend = testMessage.value; // 현재 입력된 메시지 저장
-    testMessage.value = ""; // 입력 필드 초기화
+    testMessage.value = ""; // 입력 필드 초기화    
     stompClient.publish({
       destination: '/pub/chat.message.'+roomId.value,
       body: JSON.stringify({
@@ -183,11 +238,28 @@ const sendMessage = () => {
 
 // DOM 업데이트 후에 스크롤을 최하단으로 이동
 onUpdated(() => {
-      const chatMessagesElement = document.querySelector('.chat-messages');
-      if (chatMessagesElement) {
-        chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
-      }
-    });
+  const chatMessagesElement = document.querySelector('.chat-messages');
+  if (chatMessagesElement) {
+    chatMessagesElement.scrollTop = chatMessagesElement.scrollHeight;
+  }
+});
+
+function getCurrentTimeArray() {
+  const currentDate = new Date(); // 현재 날짜와 시간을 생성
+
+  // 현재 시간 배열 생성
+  const currentTimeArray = [
+    currentDate.getFullYear(), // 년도
+    currentDate.getMonth() + 1, // 월 (0부터 시작하므로, 1을 더해줌)
+    currentDate.getDate(), // 일
+    currentDate.getHours(), // 시간 (24시간 형식)
+    currentDate.getMinutes(), // 분
+    currentDate.getSeconds(), // 초
+    0 // 밀리초는 0으로 설정
+  ];
+
+  return currentTimeArray;
+}
 </script>
 
 
@@ -405,7 +477,7 @@ onUpdated(() => {
             </div>
           </div>
           <input class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500"
-                type="text" v-model="testMessage" placeholder="채팅 메시지 입력" @keydown.enter="sendMessage" style="margin-top: 20px; position: absolute; bottom: 0; left: 0; right: 0;">
+                type="text" v-model="testMessage" placeholder="채팅 메시지 입력[ /gpt 인공지능에게 물어보세요]" @keydown.enter="sendMessage" style="margin-top: 20px; position: absolute; bottom: 0; left: 0; right: 0;">
           <!-- 입력창은 항상 맨 아래에 고정 -->
         </div>
         <!-- 채팅 끝 -->

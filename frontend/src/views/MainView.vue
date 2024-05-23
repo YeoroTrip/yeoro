@@ -1,7 +1,6 @@
 <script setup>
 import NavBar from '@/layout/NavBar.vue'
 import SearchBar from '@/components/SearchBar.vue'
-import AI from '@/components/chat-gpt.vue'
 </script>
 
 <template>
