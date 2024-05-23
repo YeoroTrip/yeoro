@@ -43,7 +43,6 @@ export const useNoticeStore = defineStore(
         }
 
         const registerNotice = async (notice) => {
-            
             noticeAPI.register(
                 notice,
                 (response) => {

@@ -1,6 +1,7 @@
 <script setup>
 import NavBar from '@/layout/NavBar.vue'
 import SearchBar from '@/components/SearchBar.vue'
+import AI from '@/components/chat-gpt.vue'
 </script>
 
 <template>
@@ -14,7 +15,10 @@ import SearchBar from '@/components/SearchBar.vue'
     <h1>여행을 떠나고 싶으신가요? 우리 사이트좀 이용해주세요!!</h1>
     <SearchBar />
   </div>
-  <main></main>
+  <main>
+<AI></AI>
+
+  </main>
 </template>
 
 <style scoped>
