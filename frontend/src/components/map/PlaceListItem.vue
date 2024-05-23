@@ -2,19 +2,18 @@
 import { ref, inject } from 'vue'
 const defaultImg =
   'https://3dicons.sgp1.cdn.digitaloceanspaces.com/v1/dynamic/premium/picture-dynamic-premium.png'
-  const props = defineProps({
+const props = defineProps({
   item: Object
 })
-const { selectedPlace, isDrawerOpen} = inject(`res`)
+const { selectedPlace, isDrawerOpen } = inject(`res`)
 const handlePlaceListClick = () => {
-  selectedPlace.value = props.item;
-  if(selectedPlace.value) {
+  selectedPlace.value = props.item
+  if (selectedPlace.value) {
     isDrawerOpen.value = true
   } else {
-    console.log("selectedPlace is null", selectedPlace.value)
+    console.log('selectedPlace is null', selectedPlace.value)
   }
 }
-
 </script>
 
 <template>
@@ -29,7 +28,31 @@ const handlePlaceListClick = () => {
     <div class="flex-grow text-wrap ml-2">
       <h2 class="text-base font-bold">{{ item.placeDetailDto.name }}</h2>
       <p class="text-sm font-semi">{{ item.placeDetailDto.fullAddress }}</p>
-      <p class="text-sm font-semi">{{ item.placeDetailDto.category }}</p>
+
+      <p
+        v-if="item.placeDetailDto.category"
+        style="
+          display: inline-flex;
+          align-items: center;
+          flex-shrink: 0;
+          min-width: 0px;
+          max-width: 100%;
+          height: 20px;
+          border-radius: 3px;
+          padding-left: 6px;
+          padding-right: 6px;
+          font-size: 14px;
+          line-height: 120%;
+          color: rgb(28, 56, 41);
+          background: rgb(219, 237, 219);
+          margin: 0px;
+          white-space: nowrap;
+          overflow: hidden;
+          text-overflow: ellipsis;
+        "
+      >
+        {{ item.placeDetailDto.category }}
+      </p>
     </div>
     <div class="w-16 h-16 bg-primary-50 text-white rounded-lg overflow-hidden">
       <img

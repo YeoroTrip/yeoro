@@ -23,7 +23,7 @@ onMounted(() => {
 <template>
   <aside
     id="new-sidebar"
-    class="fixed top-0 left-20 z-40 w-96 min-w-80 h-screen bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-gray-300"
+    class="noto-sans-kr-500 fixed top-0 left-20 z-40 w-96 min-w-80 h-screen bg-gray-50 text-gray-900 dark:bg-gray-800 dark:text-gray-300"
     aria-label="Search Sidebar"
   >
     <div class="p-4">

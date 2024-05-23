@@ -57,3 +57,17 @@ NavBar,
 Footer {
   flex-shrink: 0; /* 축소되지 않도록 설정 */
 }
+
+.noto-sans-kr-500 {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 500;
+  font-style: normal;
+}
+
+.noto-sans-kr-800 {
+  font-family: 'Noto Sans KR', sans-serif;
+  font-optical-sizing: auto;
+  font-weight: 800;
+  font-style: normal;
+}
