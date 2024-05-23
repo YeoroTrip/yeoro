@@ -24,6 +24,7 @@
     "pinia": "^2.1.7",
     "pinia-plugin-persistedstate": "^3.2.1",
     "quill": "^2.0.2",
+    "stomp": "^0.1.1",
     "tailwind": "^4.0.0",
     "vue": "^3.4.21",
     "vue-quill-editor": "^3.0.6",
