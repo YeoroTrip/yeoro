@@ -4,6 +4,7 @@ import { storeToRefs } from 'pinia'
 import { useRouter } from 'vue-router'
 import { useUserStore } from '@/stores/user'
 import PopupComponent from '@/components/PopupComponent.vue'
+import { useToastStore } from '@/stores/toast'
 
 const userStore = useUserStore()
 const { userLogin, getUserInfo } = userStore
@@ -15,6 +16,8 @@ const popupTitle = ref('로그인 완료 🎉 ')
 const popupContext = ref('이제 자유롭게 채팅을 남겨보세요!')
 
 const user = ref({ userId: ``, password: `` })
+import { useToast } from 'vue-toast-notification'
+const toast = useToast()
 const login = async () => {
   await userLogin(user.value)
   let token = sessionStorage.getItem('accessToken')
@@ -24,8 +27,10 @@ const login = async () => {
   if (isLogin.value) {
     getUserInfo(token)
     showPopup.value = true
-    //changeMenuState()
-    //router.replace("/")
+    toast.open({
+      message: '로그인 되셨습니다 🌟',
+      type: 'success'
+    })
   }
 }
 

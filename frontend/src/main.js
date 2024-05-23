@@ -1,7 +1,9 @@
 import { createApp } from 'vue'
 import { createPinia } from 'pinia'
 import { Client } from '@stomp/stompjs'
-import piniaPluginPersistedstate from "pinia-plugin-persistedstate";
+import piniaPluginPersistedstate from 'pinia-plugin-persistedstate'
+import VueToast from 'vue-toast-notification'
+import 'vue-toast-notification/dist/theme-sugar.css'
 
 import '@/style.css'
 
@@ -9,14 +11,16 @@ import App from './App.vue'
 import router from './router'
 
 const app = createApp(App)
-const pinia = createPinia();
+const pinia = createPinia()
 
-pinia.use(piniaPluginPersistedstate);
+pinia.use(piniaPluginPersistedstate)
 
-app.use(pinia);
+app.use(VueToast, {
+  position: 'top'
+})
+app.use(pinia)
 app.use(router)
 
 router.isReady().then(() => {
-    app.mount("#app");
-  });
-  
+  app.mount('#app')
+})

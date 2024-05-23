@@ -2,15 +2,58 @@
 @tailwind components;
 @tailwind utilities;
 
-
 .bg-D5E9B3 {
-    background-color: #D5E9B3;
+  background-color: #d5e9b3;
 }
 
 .bg-82B84C {
-    background-color: #82B84C;
+  background-color: #82b84c;
 }
 
-.bg-24A11A{
-    background-color: #24A11A;
+.bg-24A11A {
+  background-color: #24a11a;
+}
+
+.vue-toast {
+  /* font-family: 'Arial, sans-serif'; */
+  font-size: 16px;
+  color: #fff;
+  background-color: #333;
+  border-radius: 8px;
+  /* padding: 3px 3px; */
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.vue-toast--success {
+  padding: 3px 3px;
+  background-color: #4caf50; /* Success Background */
+}
+
+.vue-toast--error {
+  background-color: #f44336; /* Error Background */
+}
+
+.vue-toast--warning {
+  background-color: #ff9800; /* Warning Background */
+}
+
+.vue-toast--info {
+  background-color: #2196f3; /* Info Background */
+}
+
+#app {
+  display: flex;
+  flex-direction: column;
+  height: 100vh; /* 전체 화면 높이 */
+}
+
+main {
+  flex: 1; /* 나머지 공간을 모두 차지 */
+  overflow-y: auto; /* 필요할 경우에만 세로 스크롤 */
+}
+
+/* NavBar와 Footer는 필요한 높이를 지정 */
+NavBar,
+Footer {
+  flex-shrink: 0; /* 축소되지 않도록 설정 */
 }
